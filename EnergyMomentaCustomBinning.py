@@ -1,5 +1,6 @@
 import ROOT
 from ROOT import TCanvas
+from array import array
 
 latex = ROOT . TLatex ()
 latex . SetNDC ()
@@ -182,92 +183,83 @@ treeDstar_sw.SetName("treeDstar_sw")
 
 
 
-c4 = ROOT.TCanvas("c4", "2D Plot", 800, 600)
-c4.SetRightMargin(0.15)
-c4.SetLeftMargin(0.12)   
-
-
-treeDstar_sw.Draw("PionDSVDdEdx:PionDMomentum/0.1396 >> Histogram2D_DstarPion", "nSignalDstar_sw* (PionDSVDdEdx>0)", "COLZ")
-Histogram2D_DstarPion.SetStats(False)
-Histogram2D_DstarPion.SetMinimum(0.)
-Histogram2D_DstarPion.SetYTitle("Energy Loss (arb)")
-Histogram2D_DstarPion.SetXTitle("P/M (GeV/c)")
-c4.Update()
-c4.SaveAs("PionD.png")
-
-c8 = ROOT.TCanvas("c8", "ProjectionY of PionD Hist", 800, 600)
-c8.SetRightMargin(0.15)
-c8.SetLeftMargin(0.12)
-ProjectionY_DstarPion = Histogram2D_DstarPion.ProjectionY("ProjectionY_DstarPion")
-
-max_error = 1e3 
-
-for bin in range(1, ProjectionY_DstarPion.GetNbinsX() + 1):
-    if ProjectionY_DstarPion.GetBinError(bin) > max_error:
-        ProjectionY_DstarPion.SetBinContent(bin, 0)
-        ProjectionY_DstarPion.SetBinError(bin, 0)
-
-ProjectionY_DstarPion.SetLineColor(ROOT.kRed)
-ProjectionY_DstarPion.SetLineWidth(2)
-ProjectionY_DstarPion.SetTitle("ProjectionY: Normalized Event Number vs Mean Energy Loss")
-ProjectionY_DstarPion.GetYaxis().SetTitle("Event #")
-ProjectionY_DstarPion.GetXaxis().SetTitle("Mean Energy Loss (arb)")
-ProjectionY_DstarPion.Draw("E1")
-ProjectionY_DstarPion.SetStats(False)
-
-c8.SaveAs("PionDProjectionY.png")
 
 ######################################################################################################################################
 
-c9 = ROOT.TCanvas("c9", "2D Plot", 800, 600)
-c9.SetRightMargin(0.15)
-c9.SetLeftMargin(0.12)   
 
-treeDstar_sw.Draw("SlowPionSVDdEdx:SlowPionMomentum/0.1396 >> Histogram2D_DstarSlowPion", "nSignalDstar_sw*(SlowPionSVDdEdx>0)", "COLZ")
-Histogram2D_DstarSlowPion.SetStats(False)
-Histogram2D_DstarSlowPion.SetMinimum(0.)
-Histogram2D_DstarSlowPion.SetYTitle("Energy Loss (arb)")
-Histogram2D_DstarSlowPion.SetXTitle("P/M (GeV/c)")
-c9.Update()
-c9.SaveAs("SlowPion.png")
+# Set estimate for the number of entries
+treeDstar_sw.SetEstimate(treeDstar_sw.GetEntries() + 1)
 
+# Draw the variable to fill the internal array (no plot, just data)
+treeDstar_sw.Draw("KaonMomentum/0.4937", "", "goff")
 
-######################################################################################################################################
+# Retrieve the array of values
+vXP = treeDstar_sw.GetV1()
 
-cKaon = ROOT.TCanvas("cKaon", "2D Plot", 800, 600)
-cKaon.SetRightMargin(0.15)
-cKaon.SetLeftMargin(0.12)   
+# Number of bins
+m_numPBins = 100
 
-treeDstar_sw.Draw("KaonSVDdEdx:KaonMomentum/0.4937 >> Histogram2D_Kaon", "nSignalDstar_sw*(KaonSVDdEdx>0)", "COLZ")
-Histogram2D_Kaon.SetStats(False)
-Histogram2D_Kaon.SetMinimum(0.)
-Histogram2D_Kaon.SetYTitle("Energy Loss (arb)")
-Histogram2D_Kaon.SetXTitle("P/M (GeV/c)")
+kdBinsP = ROOT.TKDTreeBinning(treeDstar_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
 
-cKaon.Update()
-cKaon.SaveAs("Kaon.png")
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
 
-cKaonProfileX = ROOT.TCanvas("cKaonProfileX", "ProfileX of Kaon 2D Histogram", 800, 600)
-cKaonProfileX.SetRightMargin(0.15)
-cKaonProfileX.SetLeftMargin(0.12)
-cKaonProfileX.SetLogy(True)
+# Fix the first and last bin edges
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
 
-profileX_Kaon = Histogram2D_Kaon.ProfileX("profileX_Kaon")
-profileX_Kaon.SetLineColor(ROOT.kRed)
-profileX_Kaon.SetLineWidth(2)
-profileX_Kaon.SetTitle("ProfileX: Momentum vs Mean Energy Loss")
-profileX_Kaon.GetYaxis().SetTitle("Mean Energy Loss")
-profileX_Kaon.GetXaxis().SetTitle("P/M (GeV/C)")
+# Print bin edges for checking
+for i in range(m_numPBins + 2):
+    print(binsMinEdgesP[i])
 
-max_error = 1e4 
+# Define the histogram with custom binning
+m_numDEdxBins = 500  # or your preferred value
+m_dedxCutoff = 5e6   # or your preferred value
 
-for bin in range(1, profileX_Kaon.GetNbinsX() + 1):
-    if profileX_Kaon.GetBinError(bin) > max_error:
-        profileX_Kaon.SetBinContent(bin, 0)
-        profileX_Kaon.SetBinError(bin, 0)
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
 
-profileX_Kaon.Draw("E")
-profileX_Kaon.SetStats(False)
+hDstarK_bg = ROOT.TH2F(
+    "hDstarK",
+    "hDstarK",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+treeDstar_sw.Draw(
+    "KaonSVDdEdx:KaonMomentum/0.4937>>hDstarK",
+    "nSignalDstar_sw * (KaonSVDdEdx>0)",
+    "goff"
+)
+
+cKaonCustom = ROOT.TCanvas("cKaonCustom", "Custom Binning Kaon", 800, 600)
+hDstarK_bg.Draw("COLZ")
+cKaonCustom.SaveAs("KaonCustomBinning.png")
+
+cCustomKaonProfileX = ROOT.TCanvas("cCustomKaonProfileX", "CustomBinning ProfileX of Kaons", 800, 600)
+cCustomKaonProfileX.SetRightMargin(0.15)
+cCustomKaonProfileX.SetLeftMargin(0.12)
+cCustomKaonProfileX.SetLogy(True)
+
+CustomprofileX_Kaon = hDstarK_bg.ProfileX("CustomprofileX_Kaon")
+CustomprofileX_Kaon.SetLineColor(ROOT.kRed)
+CustomprofileX_Kaon.SetLineWidth(2)
+CustomprofileX_Kaon.SetTitle("Custom Binning ProfileX")
+CustomprofileX_Kaon.GetYaxis().SetTitle("Mean Energy Loss")
+CustomprofileX_Kaon.GetXaxis().SetTitle("P/M (GeV/C)")
+
+# max_error = 1e4 
+
+# for bin in range(1, profileX_Kaon.GetNbinsX() + 1):
+#     if profileX_Kaon.GetBinError(bin) > max_error:
+#         profileX_Kaon.SetBinContent(bin, 0)
+#         profileX_Kaon.SetBinError(bin, 0)
+
+CustomprofileX_Kaon.Draw("E")
+CustomprofileX_Kaon.SetStats(False)
 
 FitKaon = ROOT.TF1(
     "FitKaon",
@@ -276,7 +268,7 @@ FitKaon = ROOT.TF1(
 )
 FitKaon.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
 
-profileX_Kaon.Fit(FitKaon, "", "", 0.05, 8)
+CustomprofileX_Kaon.Fit(FitKaon, "", "", 0.05, 8)
 
 FitKaon.SetLineColor(ROOT.kBlue)
 FitKaon.SetLineWidth(2)
@@ -301,63 +293,97 @@ latex.SetTextSize(0.03)
 latex.DrawLatex(0.15, 0.85, formula_str)
 
 
-cKaonProfileX.SaveAs("Kaon2DHistogram_ProfileX.png")
+cCustomKaonProfileX.SaveAs("CustomKaon2DHistogram_ProfileX.png")
 
 #############################################################################################################################
-cProton = ROOT.TCanvas("cProton", "2D Plot", 800, 600)
-cProton.SetRightMargin(0.15)
-cProton.SetLeftMargin(0.12)   
+# Set estimate for the number of entries
+treeLambda_sw.SetEstimate(treeLambda_sw.GetEntries() + 1)
 
-treeLambda_sw.Draw("ProtonSVDdEdx:ProtonMomentum/0.938 >> Histogram2D_Proton", "nSignalLambda_sw*(ProtonSVDdEdx>0)", "COLZ")
-Histogram2D_Proton.SetStats(False)
-Histogram2D_Proton.SetMinimum(0.)
-Histogram2D_Proton.SetYTitle("Energy Loss (arb)")
-Histogram2D_Proton.SetXTitle("P/M (GeV/c)")
-cProton.Update()
-cProton.SaveAs("Proton.png")
+# Draw the variable to fill the internal array (no plot, just data)
+treeLambda_sw.Draw("ProtonMomentum/0.938", "", "goff")
 
-cProtonProfileX = ROOT.TCanvas("cProtonProfileX", "ProfileX of Proton 2D Histogram", 800, 600)
-cProtonProfileX.SetRightMargin(0.15)
-cProtonProfileX.SetLeftMargin(0.12)
-cProtonProfileX.SetLogy(True)
+# Retrieve the array of values
+vXP = treeLambda_sw.GetV1()
 
-profileX_Proton = Histogram2D_Proton.ProfileX("profileX_Proton")
-profileX_Proton.SetLineColor(ROOT.kRed)
-profileX_Proton.SetLineWidth(2)
-profileX_Proton.SetTitle("ProfileX: Momentum vs Mean Energy Loss")
-profileX_Proton.GetYaxis().SetTitle("Mean Energy Loss")
-profileX_Proton.GetXaxis().SetTitle("P/M (GeV/C)")
+# Number of bins
+m_numPBins = 100
 
-max_error = 1e4 
+kdBinsP = ROOT.TKDTreeBinning(treeLambda_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
 
-for bin in range(1, profileX_Proton.GetNbinsX() + 1):
-    if profileX_Proton.GetBinError(bin) > max_error:
-        profileX_Proton.SetBinContent(bin, 0)
-        profileX_Proton.SetBinError(bin, 0)
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
 
-profileX_Proton.Draw("E")
-profileX_Proton.SetStats(False)
+# Fix the first and last bin edges
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
 
+# Print bin edges for checking
+for i in range(m_numPBins + 2):
+    print(binsMinEdgesP[i])
 
-FitProton = ROOT.TF1(
-    "FitProton",
-    "[0] + [1]/pow((x + [2]), [3]) + [4]*x",
-    0.05, 3
+# Define the histogram with custom binning
+m_numDEdxBins = 500  # or your preferred value
+m_dedxCutoff = 5e6   # or your preferred value
+
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
+
+hLambdaP_bg = ROOT.TH2F(
+    "hLambdaP_bg",
+    "hLambdaP_bg",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
 )
-FitProton.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
 
-profileX_Proton.Fit(FitProton, "", "", 0.05, 3)
+treeLambda_sw.Draw(
+    "ProtonSVDdEdx:ProtonMomentum/0.938>>hLambdaP_bg",
+    "nSignalLambda_sw * (ProtonSVDdEdx>0)",
+    "goff"
+)
 
-FitProton.SetLineColor(ROOT.kBlue)
-FitProton.SetLineWidth(2)
-FitProton.Draw("SAME")
+cProtonCustom = ROOT.TCanvas("cProtonCustom", "Custom Binning Proton 2D", 800, 600)
+hLambdaP_bg.Draw("COLZ")
+cProtonCustom.SaveAs("ProtonCustomBinning.png")
+
+
+cProtonCustomProfileX = ROOT.TCanvas("cProtonCustomProfileX", "Custom Binning Proton 2D ProfileX", 800, 600)
+
+cProtonCustomProfileX.SetRightMargin(0.15)
+cProtonCustomProfileX.SetLeftMargin(0.12)
+cProtonCustomProfileX.SetLogy(True)
+
+CustomprofileX_Proton = hLambdaP_bg.ProfileX("CustomprofileX_Proton")
+CustomprofileX_Proton.SetLineColor(ROOT.kRed)
+CustomprofileX_Proton.SetLineWidth(2)
+CustomprofileX_Proton.SetTitle("ProtonProfileX")
+CustomprofileX_Proton.GetYaxis().SetTitle("Mean Energy Loss")
+CustomprofileX_Proton.GetXaxis().SetTitle("P/M (GeV/C)")
+
+CustomprofileX_Proton.Draw("E")
+CustomprofileX_Proton.SetStats(False)
+
+CustomFitProton = ROOT.TF1(
+    "CustomFitProton",
+    "[0] + [1]/pow((x + [2]), [3]) + [4]*x",
+    0.25, 3
+)
+CustomFitProton.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
+
+CustomprofileX_Proton.Fit(CustomFitProton, "", "", 0.25, 3)
+
+CustomFitProton.SetLineColor(ROOT.kBlue)
+CustomFitProton.SetLineWidth(2)
+CustomFitProton.Draw("SAME")
 
 # Get parameter values
-p0 = FitProton.GetParameter(0)
-p1 = FitProton.GetParameter(1)
-p2 = FitProton.GetParameter(2)
-p3 = FitProton.GetParameter(3)
-p4 = FitProton.GetParameter(4)
+p0 = CustomFitProton.GetParameter(0)
+p1 = CustomFitProton.GetParameter(1)
+p2 = CustomFitProton.GetParameter(2)
+p3 = CustomFitProton.GetParameter(3)
+p4 = CustomFitProton.GetParameter(4)
 
 
 # # Format the formula with parameter values
@@ -370,113 +396,230 @@ latex.SetNDC()
 latex.SetTextSize(0.03)
 latex.DrawLatex(0.15, 0.85, formula_str)
 
+cProtonCustomProfileX.SaveAs("CustomBinningProton2DHistogram_ProfileX.png")
 
-cProtonProfileX.SaveAs("Proton2DHistogram_ProfileX.png")
 
 #############################################################################################################################
-c10 = ROOT.TCanvas("c4", "2D Plot", 800, 600)
-c10.SetRightMargin(0.15)
-c10.SetLeftMargin(0.12)   
+# Set estimate for the number of entries
+treeLambda_sw.SetEstimate(treeLambda_sw.GetEntries() + 1)
 
-treeLambda_sw.Draw("PionLambdaSVDdEdx:PionLambdaMomentum/0.1396 >> Histogram2D_Lambda", "nSignalLambda_sw*(PionLambdaSVDdEdx>0)", "COLZ")
-# LambdaTree.Draw("PionLambdaMomentum:PionLambdaSVDdEdx >> h2d(100, 0, 5e6, 100, 0, 4)", "", "COLZ")
-Histogram2D_Lambda.SetStats(False)
-Histogram2D_Lambda.SetMinimum(0.)
-Histogram2D_Lambda.SetYTitle("Energy Loss (arb)")
-Histogram2D_Lambda.SetXTitle("P/M (GeV/c)")
-c10.Update()
-c10.SaveAs("PionLambda.png")
+# Draw the variable to fill the internal array (no plot, just data)
+treeLambda_sw.Draw("PionLambdaMomentum/0.1396", "", "goff")
+
+# Retrieve the array of values
+vXP = treeLambda_sw.GetV1()
+
+# Number of bins
+m_numPBins = 100
+
+kdBinsP = ROOT.TKDTreeBinning(treeLambda_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
+
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
+
+# Fix the first and last bin edges
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
+
+# Print bin edges for checking
+for i in range(m_numPBins + 2):
+    print(binsMinEdgesP[i])
+
+# Define the histogram with custom binning
+m_numDEdxBins = 500  # or your preferred value
+m_dedxCutoff = 5e6   # or your preferred value
+
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
+
+hPionLambda_bg = ROOT.TH2F(
+    "hPionLambda",
+    "hPionLambda",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+treeLambda_sw.Draw(
+    "PionLambdaSVDdEdx:PionLambdaMomentum/0.1396>>hPionLambda",
+    "nSignalLambda_sw * (PionLambdaSVDdEdx>0)",
+    "goff"
+)
+
+cPionLambdaCustom = ROOT.TCanvas("cPionLambdaCustom", "Custom Binning PionLambda 2D", 800, 600)
+hPionLambda_bg.Draw("COLZ")
+cPionLambdaCustom.SaveAs("PionLambdaCustomBinning.png")
+
+
+
+########################################################################################################
+# Set estimate for the number of entries
+treeDstar_sw.SetEstimate(treeDstar_sw.GetEntries() + 1)
+
+# Draw the variable to fill the internal array (no plot, just data)
+treeDstar_sw.Draw("PionDMomentum/0.1396", "", "goff")
+
+# Retrieve the array of values
+vXP = treeDstar_sw.GetV1()
+
+# Number of bins
+m_numPBins = 100
+
+kdBinsP = ROOT.TKDTreeBinning(treeDstar_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
+
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
+
+# Fix the first and last bin edges
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
+
+# Print bin edges for checking
+for i in range(m_numPBins + 2):
+    print(binsMinEdgesP[i])
+
+# Define the histogram with custom binning
+m_numDEdxBins = 500  # or your preferred value
+m_dedxCutoff = 5e6   # or your preferred value
+
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
+
+hPionD_bg = ROOT.TH2F(
+    "hPionD",
+    "hPionD",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+treeDstar_sw.Draw(
+    "PionDSVDdEdx:PionDMomentum/0.1396>>hPionD",
+    "nSignalDstar_sw * (PionDSVDdEdx>0)",
+    "goff"
+)
+
+cPionDCustom = ROOT.TCanvas("cPionDstar", "Custom Binning PionD* 2D", 800, 600)
+hPionD_bg.Draw("COLZ")
+cPionDCustom.SaveAs("PionDCustomBinning.png")
+
+######################################################################################################################################
+
+
+
+# Set estimate for the number of entries
+treeDstar_sw.SetEstimate(treeDstar_sw.GetEntries() + 1)
+
+# Draw the variable to fill the internal array (no plot, just data)
+treeDstar_sw.Draw("SlowPionMomentum/0.1396", "", "goff")
+
+# Retrieve the array of values
+vXP = treeDstar_sw.GetV1()
+
+# Number of bins
+m_numPBins = 100
+
+kdBinsP = ROOT.TKDTreeBinning(treeDstar_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
+
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
+
+# Fix the first and last bin edges
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
+
+# Print bin edges for checking
+for i in range(m_numPBins + 2):
+    print(binsMinEdgesP[i])
+
+# Define the histogram with custom binning
+m_numDEdxBins = 500  
+m_dedxCutoff = 5e6 
+
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
+
+hSlowPion_bg = ROOT.TH2F(
+    "hSlowPion",
+    "hSlowPion",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+treeDstar_sw.Draw(
+    "SlowPionSVDdEdx:SlowPionMomentum/0.1396>>hSlowPion",
+    "nSignalDstar_sw * (SlowPionSVDdEdx>0)",
+    "goff"
+)
+
+cSlowPionCustom = ROOT.TCanvas("cSlowPionstar", "Custom Binning Slow Pion 2D", 800, 600)
+hSlowPion_bg.Draw("COLZ")
+cSlowPionCustom.SaveAs("SlowPionCustomBinning.png")
 
 #############################################################################
 
 legend = ROOT.TLegend(0.7 ,0.6 ,0.85 ,0.75)
-# legend.AddEntry(HistogramLambdaPionEnergy,"Lambda")
-# legend.AddEntry(HistogramDstarPionEnergy,"Dstar")
-# legend.AddEntry(gaussFitDstar,"Fit - Dstar")
-# legend.AddEntry(gaussFitLambda,"Fit - Lambda")
-# legend.SetLineWidth(0)
-# legend.Draw("same")
 
-# print('Plot Customization Completed')
-
-# c.Draw()
-# c.SaveAs("LambdaDstarEnergy.png")
-# # c.Print("plots.pdf")
-
-Histogram2D_Lambda.Add(Histogram2D_DstarPion)
-Histogram2D_Lambda.Add(Histogram2D_DstarSlowPion)
+hPionLambda_bg.Add(hPionD_bg)
+hPionLambda_bg.Add(hSlowPion_bg)
 
 # Draw combined histogram
-c5 = ROOT.TCanvas("c5", "Combined 2D Histogram", 800, 600)
-c5.SetRightMargin(0.15)
-Histogram2D_Lambda.SetMinimum(0.)
-c5.SetLeftMargin(0.12) 
-Histogram2D_Lambda.SetStats(False)
-Histogram2D_Lambda.SetTitle("Combined Energy vs Momentum Histogram")
-Histogram2D_Lambda.Draw("COLZ")
-c5.SaveAs("Combined2DHistogram.png")
-
-##########################################
-
-c6 = ROOT.TCanvas("c6", "ProjectionY of Combined 2D Histogram", 800, 600)
-c6.SetRightMargin(0.15)
-c6.SetLeftMargin(0.12)
-ProjectionY = Histogram2D_Lambda.ProjectionY("ProjectionY",15*25,-1)
-ProjectionY.SetLineColor(ROOT.kRed)
-ProjectionY.SetLineWidth(2)
-ProjectionY.SetTitle("ProjectionY: Event Number vs Mean Energy Loss")
-ProjectionY.GetYaxis().SetTitle("Event #")
-ProjectionY.GetXaxis().SetTitle("Mean Energy Loss (arb)")
-ProjectionY.Draw("E1")
-ProjectionY.GetXaxis().SetRangeUser(0, 2500e3)
-ProjectionY.SetStats(False)
-
-c6.SaveAs("Combined2DHistogram_ProjectionY.png")
-
-########################################################
-
-c7 = ROOT.TCanvas("c7", "ProfileX of Combined 2D Histogram", 800, 600)
-c7.SetRightMargin(0.15)
-c7.SetLeftMargin(0.12)
-c7.SetLogy(True)
-profileX = Histogram2D_Lambda.ProfileX("profileX")
-profileX.SetLineColor(ROOT.kRed)
-profileX.SetLineWidth(2)
-profileX.SetTitle("ProfileX: Momentum vs Mean Energy Loss")
-profileX.GetYaxis().SetTitle("Mean Energy Loss")
-profileX.GetXaxis().SetTitle("P/M (GeV/C)")
+cCombined = ROOT.TCanvas("cCombined", "Combined 2D Histogram", 800, 600)
+cCombined.SetRightMargin(0.15)
+hPionLambda_bg.SetMinimum(0.)
+cCombined.SetLeftMargin(0.12) 
+hPionLambda_bg.SetStats(False)
+hPionLambda_bg.SetTitle("Combined Energy vs Momentum Histogram")
+hPionLambda_bg.Draw("COLZ")
+cCombined.SaveAs("Combined2DHistogram.png")
 
 
-max_error = 1e4 
 
-for bin in range(1, profileX.GetNbinsX() + 1):
-    if profileX.GetBinError(bin) > max_error:
-        profileX.SetBinContent(bin, 0)
-        profileX.SetBinError(bin, 0)
+cCombinedCustomProfileX = ROOT.TCanvas("cCombinedCustomProfileX", "Custom Binning Combined 2D ProfileX", 800, 600)
 
-profileX.Draw("E")
-profileX.SetStats(False)
+cCombinedCustomProfileX.SetRightMargin(0.15)
+cCombinedCustomProfileX.SetLeftMargin(0.12)
+cCombinedCustomProfileX.SetLogy(True)
 
-betterFit = ROOT.TF1(
-    "betterFit",
+CustomprofileX_Combined = hPionLambda_bg.ProfileX("CustomprofileX_Combined")
+CustomprofileX_Combined.SetLineColor(ROOT.kRed)
+CustomprofileX_Combined.SetLineWidth(2)
+CustomprofileX_Combined.SetTitle("Combined Pion ProfileX")
+CustomprofileX_Combined.GetYaxis().SetTitle("Mean Energy Loss")
+CustomprofileX_Combined.GetXaxis().SetTitle("P/M (GeV/C)")
+
+CustomprofileX_Combined.Draw("E")
+CustomprofileX_Combined.SetStats(False)
+
+CustomFitCombined = ROOT.TF1(
+    "CustomFitCombined",
     "[0] + [1]/pow((x + [2]), [3]) + [4]*x",
-    0.05, 20
+    0.25, 5
 )
-betterFit.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
+CustomFitCombined.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
 
-profileX.Fit(betterFit, "", "", 0.05, 20)
+CustomprofileX_Combined.Fit(CustomFitCombined, "", "", 0.25, 5)
 
-betterFit.SetLineColor(ROOT.kBlue)
-betterFit.SetLineWidth(2)
-betterFit.Draw("SAME")
+CustomFitCombined.SetLineColor(ROOT.kBlue)
+CustomFitCombined.SetLineWidth(2)
+CustomFitCombined.Draw("SAME")
 
 # Get parameter values
-p0 = betterFit.GetParameter(0)
-p1 = betterFit.GetParameter(1)
-p2 = betterFit.GetParameter(2)
-p3 = betterFit.GetParameter(3)
-p4 = betterFit.GetParameter(4)
+p0 = CustomFitCombined.GetParameter(0)
+p1 = CustomFitCombined.GetParameter(1)
+p2 = CustomFitCombined.GetParameter(2)
+p3 = CustomFitCombined.GetParameter(3)
+p4 = CustomFitCombined.GetParameter(4)
 
+
+# # Format the formula with parameter values
 formula_str = (
     f"Fit: {p0:.2e} + {p1:.2e}/(x + {p2:.2e})^{p3:.2e} + {p4:.2e}*x"
 )
@@ -486,7 +629,7 @@ latex.SetNDC()
 latex.SetTextSize(0.03)
 latex.DrawLatex(0.15, 0.85, formula_str)
 
-c7.SaveAs("Combined2DHistogram_ProfileX.png")
+cCombinedCustomProfileX.SaveAs("CustomBinningCombined2DHistogram_ProfileX.png")
 
 
 #####################################################################
@@ -496,30 +639,30 @@ cProfileFormulae.SetRightMargin(0.15)
 cProfileFormulae.SetLeftMargin(0.12)
 cProfileFormulae.SetLogy(True)
 
-betterFit.Draw()
+CustomFitCombined.Draw()
 FitKaon.Draw('Same')
-FitProton.Draw('Same')
-betterFit.SetLineColor(ROOT.kRed)
-betterFit.SetLineWidth(2)
+CustomFitProton.Draw('Same')
+CustomFitCombined.SetLineColor(ROOT.kRed)
+CustomFitCombined.SetLineWidth(2)
 FitKaon.SetLineColor(ROOT.kBlue)
 FitKaon.SetLineWidth(2)
-FitProton.SetLineColor(ROOT.kBlack)
-FitProton.SetLineWidth(2)
+CustomFitProton.SetLineColor(ROOT.kBlack)
+CustomFitProton.SetLineWidth(2)
 
 
 legend = ROOT.TLegend(0.7 ,0.6 ,0.85 ,0.75)
-legend.AddEntry(betterFit,"Fit Pions")
+legend.AddEntry(CustomFitCombined,"Fit Pions")
 legend.AddEntry(FitKaon,"Fit Kaons")
-legend.AddEntry(FitProton,"Fit Protons")
+legend.AddEntry(CustomFitProton,"Fit Protons")
 legend.SetLineWidth(0)
 legend.Draw("Same")
 
-betterFit.GetYaxis().SetRangeUser(5e5, 7e7)
-betterFit.SetTitle("Momentum vs Mean Energy Loss")
-betterFit.GetYaxis().SetTitle("Mean Energy Loss")
-betterFit.GetXaxis().SetTitle("P/M (GeV/C)")
+CustomFitCombined.GetYaxis().SetRangeUser(5e5, 7e7)
+CustomFitCombined.SetTitle("Momentum vs Mean Energy Loss")
+CustomFitCombined.GetYaxis().SetTitle("Mean Energy Loss")
+CustomFitCombined.GetXaxis().SetTitle("P/M (GeV/C)")
 
-cProfileFormulae.SaveAs("CombinedFormulae.png")
+cProfileFormulae.SaveAs("CustomCombinedFormulae.png")
 # gaussFitProfileY = ROOT.TF1("gaussfitProfileY","gaus",100e3 ,1000e3)
 
 # profileY.Fit(gaussFitProfileY, "R 0")
@@ -594,108 +737,3 @@ cProfileFormulae.SaveAs("CombinedFormulae.png")
 
 # c2.SaveAs("PionMomenta.png")
 
-# Set estimate for the number of entries
-treeLambda_sw.SetEstimate(treeLambda_sw.GetEntries() + 1)
-
-# Draw the variable to fill the internal array (no plot, just data)
-treeLambda_sw.Draw("ProtonMomentum/0.938", "", "goff")
-
-# Retrieve the array of values
-vXP = treeLambda_sw.GetV1()
-
-# Number of bins
-m_numPBins = 100
-
-# Calculate bin edges using TKDTreeBinning
-kdBinsP = ROOT.TKDTreeBinning(treeLambda_sw.GetEntries(), 1, vXP, m_numPBins)
-binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
-
-# Convert to Python list (or use std.vector directly)
-binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
-
-# Fix the first and last bin edges
-binsMinEdgesP[0] = 0.1
-binsMinEdgesP[m_numPBins + 1] = 50.
-
-# Print bin edges for checking
-for i in range(m_numPBins + 2):
-    print(binsMinEdgesP[i])
-
-# Define the histogram with custom binning
-m_numDEdxBins = 500  # or your preferred value
-m_dedxCutoff = 5e6   # or your preferred value
-
-# Convert to C array for ROOT
-from array import array
-binsMinEdgesP_arr = array('d', binsMinEdgesP)
-
-hLambdaP_bg = ROOT.TH2F(
-    "hist_d1_2212_trunc_bg",
-    "hist_d1_2212_trunc_bg",
-    m_numPBins,
-    binsMinEdgesP_arr,
-    m_numDEdxBins,
-    0,
-    m_dedxCutoff
-)
-
-treeLambda_sw.Draw(
-    "ProtonSVDdEdx:ProtonMomentum/0.938>>hist_d1_2212_trunc_bg",
-    "nSignalLambda_sw * (ProtonSVDdEdx>0)",
-    "goff"
-)
-
-cProtonCustom = ROOT.TCanvas("cProtonCustom", "Custom Binning Proton 2D", 800, 600)
-hLambdaP_bg.Draw("COLZ")
-cProtonCustom.SaveAs("ProtonCustomBinning.png")
-
-###################
-
-cProtonCustomProfileX = ROOT.TCanvas("cProtonCustomProfileX", "Custom Binning Proton 2D ProfileX", 800, 600)
-
-cProtonCustomProfileX.SetRightMargin(0.15)
-cProtonCustomProfileX.SetLeftMargin(0.12)
-cProtonCustomProfileX.SetLogy(True)
-
-CustomprofileX_Proton = hLambdaP_bg.ProfileX("CustomprofileX_Proton")
-CustomprofileX_Proton.SetLineColor(ROOT.kRed)
-CustomprofileX_Proton.SetLineWidth(2)
-CustomprofileX_Proton.SetTitle("ProtonProfileX")
-CustomprofileX_Proton.GetYaxis().SetTitle("Mean Energy Loss")
-CustomprofileX_Proton.GetXaxis().SetTitle("P/M (GeV/C)")
-
-CustomprofileX_Proton.Draw("E")
-CustomprofileX_Proton.SetStats(False)
-
-CustomFitProton = ROOT.TF1(
-    "CustomFitProton",
-    "[0] + [1]/pow((x + [2]), [3]) + [4]*x",
-    0.25, 3
-)
-CustomFitProton.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
-
-CustomprofileX_Proton.Fit(CustomFitProton, "", "", 0.25, 3)
-
-CustomFitProton.SetLineColor(ROOT.kBlue)
-CustomFitProton.SetLineWidth(2)
-CustomFitProton.Draw("SAME")
-
-# Get parameter values
-p0 = CustomFitProton.GetParameter(0)
-p1 = CustomFitProton.GetParameter(1)
-p2 = CustomFitProton.GetParameter(2)
-p3 = CustomFitProton.GetParameter(3)
-p4 = CustomFitProton.GetParameter(4)
-
-
-# # Format the formula with parameter values
-formula_str = (
-    f"Fit: {p0:.2e} + {p1:.2e}/(x + {p2:.2e})^{p3:.2e} + {p4:.2e}*x"
-)
-
-latex = ROOT.TLatex()
-latex.SetNDC()
-latex.SetTextSize(0.03)
-latex.DrawLatex(0.15, 0.85, formula_str)
-
-cProtonCustomProfileX.SaveAs("CustomBinningProton2DHistogram_ProfileX.png")
