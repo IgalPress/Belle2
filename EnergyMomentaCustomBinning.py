@@ -249,6 +249,7 @@ cCustomKaonProfileX = ROOT.TCanvas("cCustomKaonProfileX", "CustomBinning Profile
 cCustomKaonProfileX.SetRightMargin(0.15)
 cCustomKaonProfileX.SetLeftMargin(0.12)
 cCustomKaonProfileX.SetLogy(True)
+cCustomKaonProfileX.SetLogx(True)
 
 CustomprofileX_Kaon = hDstarK_bg.ProfileX("CustomprofileX_Kaon")
 CustomprofileX_Kaon.SetLineColor(ROOT.kRed)
@@ -270,11 +271,11 @@ CustomprofileX_Kaon.SetStats(False)
 FitKaon = ROOT.TF1(
     "FitKaon",
     "[0] + [1]/pow((x + [2]), [3]) + [4]*x",
-    0.05, 8
+    0.4, 24
 )
 FitKaon.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
 
-CustomprofileX_Kaon.Fit(FitKaon, "", "", 0.05, 8)
+CustomprofileX_Kaon.Fit(FitKaon, "", "", 0.4, 8)
 
 FitKaon.SetLineColor(ROOT.kBlue)
 FitKaon.SetLineWidth(2)
@@ -328,8 +329,8 @@ for i in range(m_numPBins + 2):
     print(binsMinEdgesP[i])
 
 # Define the histogram with custom binning
-m_numDEdxBins = 500  # or your preferred value
-m_dedxCutoff = 5e6   # or your preferred value
+m_numDEdxBins = 500  
+m_dedxCutoff = 5e6   
 
 # Convert to C array for ROOT
 binsMinEdgesP_arr = array('d', binsMinEdgesP)
@@ -360,6 +361,7 @@ cProtonCustomProfileX = ROOT.TCanvas("cProtonCustomProfileX", "Custom Binning Pr
 cProtonCustomProfileX.SetRightMargin(0.15)
 cProtonCustomProfileX.SetLeftMargin(0.12)
 cProtonCustomProfileX.SetLogy(True)
+cProtonCustomProfileX.SetLogx(True)
 
 CustomprofileX_Proton = hLambdaP_bg.ProfileX("CustomprofileX_Proton")
 CustomprofileX_Proton.SetLineColor(ROOT.kRed)
@@ -374,7 +376,7 @@ CustomprofileX_Proton.SetStats(False)
 CustomFitProton = ROOT.TF1(
     "CustomFitProton",
     "[0] + [1]/pow((x + [2]), [3]) + [4]*x",
-    0.25, 3
+    0.25, 24
 )
 CustomFitProton.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
 
@@ -624,6 +626,7 @@ cCombinedCustomProfileX = ROOT.TCanvas("cCombinedCustomProfileX", "Custom Binnin
 cCombinedCustomProfileX.SetRightMargin(0.15)
 cCombinedCustomProfileX.SetLeftMargin(0.12)
 cCombinedCustomProfileX.SetLogy(True)
+cCombinedCustomProfileX.SetLogx(True)
 
 CustomprofileX_Combined = hTotal.ProfileX("CustomprofileX_Combined")
 CustomprofileX_Combined.SetLineColor(ROOT.kRed)
@@ -638,11 +641,11 @@ CustomprofileX_Combined.SetStats(False)
 CustomFitCombined = ROOT.TF1(
     "CustomFitCombined",
     "[0] + [1]/pow((x + [2]), [3]) + [4]*x",
-    0.25, 24
+    0.4, 24
 )
 CustomFitCombined.SetParameters(100, 5000, 0.01, 12, 10)  # [6] is the slope of the rising tail
 
-CustomprofileX_Combined.Fit(CustomFitCombined, "", "", 0.25, 24)
+CustomprofileX_Combined.Fit(CustomFitCombined, "", "", 0.4, 24)
 
 CustomFitCombined.SetLineColor(ROOT.kBlue)
 CustomFitCombined.SetLineWidth(2)
@@ -675,6 +678,7 @@ cProfileFormulae = ROOT.TCanvas("cProfileFormulae", "ProfileX of Pions, Kaons, a
 cProfileFormulae.SetRightMargin(0.15)
 cProfileFormulae.SetLeftMargin(0.12)
 cProfileFormulae.SetLogy(True)
+cProfileFormulae.SetLogx(True)
 
 CustomFitCombined.Draw()
 FitKaon.Draw('Same')
@@ -703,3 +707,31 @@ cProfileFormulae.SaveAs("CustomCombinedFormulae.png")
 
 ########################################################################################
 
+cDataCustom = ROOT.TCanvas("cDataCustom", "Custom Binning ProfileX: Pions, Kaons, Protons", 800, 600)
+cDataCustom.SetRightMargin(0.15)
+cDataCustom.SetLeftMargin(0.12)
+cDataCustom.SetLogy(True)
+cDataCustom.SetLogx(True)
+
+CustomprofileX_Combined.SetLineColor(ROOT.kRed)
+CustomprofileX_Combined.SetLineWidth(2)
+CustomprofileX_Combined.SetTitle("ProfileX: Pions (red), Kaons (blue), Protons (black)")
+CustomprofileX_Combined.GetYaxis().SetTitle("Mean Energy Loss")
+CustomprofileX_Combined.GetXaxis().SetTitle("P/M (GeV/C)")
+
+CustomprofileX_Combined.Draw("E")
+CustomprofileX_Kaon.SetLineColor(ROOT.kBlue)
+CustomprofileX_Kaon.SetLineWidth(2)
+CustomprofileX_Kaon.Draw("E SAME")
+CustomprofileX_Proton.SetLineColor(ROOT.kBlack)
+CustomprofileX_Proton.SetLineWidth(2)
+CustomprofileX_Proton.Draw("E SAME")
+
+legend = ROOT.TLegend(0.7, 0.6, 0.85, 0.75)
+legend.AddEntry(CustomprofileX_Combined, "Pions")
+legend.AddEntry(CustomprofileX_Kaon, "Kaons")
+legend.AddEntry(CustomprofileX_Proton, "Protons")
+legend.SetLineWidth(0)
+legend.Draw("Same")
+
+cDataCustom.SaveAs("DataCustomBinning.png")
