@@ -212,6 +212,9 @@ GammaDatasetSWeighted = ROOT.RooDataSet(GammaDataset.GetName(), GammaDataset.Get
 treeGamma_sw = GammaDatasetSWeighted.GetClonedTree()
 treeGamma_sw.SetName("treeGamma_sw") 
 
+bins_start = 120
+bins_fin = 140
+
 #########################################################################################################################################
 
 
@@ -278,7 +281,7 @@ cFirstElectronCustomProjectionY.SetLeftMargin(0.12)
 # cFirstElectronCustomProjectionY.SetLogx(True)
 
 
-CustomProjectionY_FirstElectron = hGammaFirstElectron_bg.ProjectionY("CustomProjectionY_FirstElectron",80,150)
+CustomProjectionY_FirstElectron = hGammaFirstElectron_bg.ProjectionY("CustomProjectionY_FirstElectron", bins_start, bins_fin)
 CustomProjectionY_FirstElectron.SetLineColor(ROOT.kRed)
 CustomProjectionY_FirstElectron.SetLineWidth(2)
 CustomProjectionY_FirstElectron.SetTitle("First Electron ProjectionY")
@@ -290,13 +293,13 @@ CustomProjectionY_FirstElectron.Draw("E")
 
 gaus2Landau = ROOT.TF1(
     "gaus2Landau",
-    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5])*TMath::Landau(x, [1], [1]*[5])",
+    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5]) + [6]*TMath::Landau(x, [1], [1]*[5])",
     1.e5, 1.5e6
 )
 
 gaus2Landau.SetLineColor(ROOT.kBlack)
-# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_mean, gaus2_sigma, landau_amp, landau_mp, landau_width
-gaus2Landau.SetParameters(9000, 650e3, 1, 4000, 1, 0.1)
+# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_sigma, landau_width, Landau_Amplitude
+gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1, 1e5)
 gaus2Landau.SetNpx(1000)
 
 
@@ -305,9 +308,11 @@ gaus2Landau.SetParLimits(2,1,5)
 gaus2Landau.SetParLimits(4,1,5)
 
 CustomProjectionY_FirstElectron.Fit("gaus2Landau", "R")
+p5FirstElectron = gaus2Landau.GetParameter(5)
+p5FirstElectronErr = gaus2Landau.GetParError(5)
 
 
-cFirstElectronCustomProjectionY.SaveAs("CustomBinningFirstElectron2DHistogram_ProjectionY.png")
+cFirstElectronCustomProjectionY.SaveAs("PicturesForChecking/CustomBinningFirstElectron2DHistogram_ProjectionY.png")
 
 
 ##########################################################################################################################################
@@ -358,8 +363,13 @@ treeGamma_sw.Draw(
     "goff"
 )
 
+
+
 cSecondElectronCustom = ROOT.TCanvas("cSecondElectronCustom", "Custom Binning SecondElectron", 800, 600)
 hGammaSecondElectron_bg.Draw("COLZ")
+
+hGammaSecondElectron_bg.GetYaxis().SetTitle("Mean Energy Loss")
+hGammaSecondElectron_bg.GetXaxis().SetTitle("P/M (GeV/C)")
 cSecondElectronCustom.SaveAs("SecondElectronCustomBinning.png")
 
 
@@ -372,7 +382,7 @@ cSecondElectronCustomProjectionY.SetLeftMargin(0.12)
 # cSecondElectronCustomProjectionY.SetLogx(True)
 
 
-CustomProjectionY_SecondElectron = hGammaSecondElectron_bg.ProjectionY("CustomProjectionY_SecondElectron",80,150)
+CustomProjectionY_SecondElectron = hGammaSecondElectron_bg.ProjectionY("CustomProjectionY_SecondElectron", bins_start, bins_fin)
 CustomProjectionY_SecondElectron.SetLineColor(ROOT.kRed)
 CustomProjectionY_SecondElectron.SetLineWidth(2)
 CustomProjectionY_SecondElectron.SetTitle("Second Electron ProjectionY")
@@ -384,13 +394,13 @@ CustomProjectionY_SecondElectron.Draw("E")
 
 gaus2Landau = ROOT.TF1(
     "gaus2Landau",
-    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5])*TMath::Landau(x, [1], [1]*[5])",
+    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5]) + [6]*TMath::Landau(x, [1], [1]*[5])",
     1.e5, 1.5e6
 )
 
 gaus2Landau.SetLineColor(ROOT.kBlack)
 # Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_sigma, landau_width
-gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1)
+gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1, 1e5)
 gaus2Landau.SetNpx(1000)
 
 
@@ -398,10 +408,27 @@ gaus2Landau.SetParLimits(5,0,1)
 gaus2Landau.SetParLimits(2,1,5)
 gaus2Landau.SetParLimits(4,1,5)
 
+# gaus2Landau = ROOT.TF1(
+#     "gaus2Landau",
+#     "[0]*TMath::Gaus(x, [1], [2], true) + [3]*TMath::Gaus(x, [4], [5], true) + [6]*TMath::Landau(x, [7], [8], true)",
+#     1.e5, 1.5e6
+# )
+# gaus2Landau.SetLineColor(ROOT.kBlack)
+# # Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_mean, gaus2_sigma, landau_amp, landau_mp, landau_width
+# gaus2Landau.SetParameters(20000, 650e3, 5e4, 4000, 700e3, 8e4, 2000, 800e3, 1e5)
+# gaus2Landau.SetNpx(1000)
+
+# # Optionally, set parameter limits for stability
+# gaus2Landau.SetParLimits(2, 1e4, 2e5)   # sigma1
+# gaus2Landau.SetParLimits(5, 1e4, 2e5)   # sigma2
+# gaus2Landau.SetParLimits(8, 1e4, 2e5)   # landau width
+
+
 CustomProjectionY_SecondElectron.Fit("gaus2Landau", "R")
+p5SecondElectron = gaus2Landau.GetParameter(5)
+p5SecondElectronErr = gaus2Landau.GetParError(5)
 
-
-cSecondElectronCustomProjectionY.SaveAs("CustomBinningSecondElectron2DHistogram_ProjectionY.png")
+cSecondElectronCustomProjectionY.SaveAs("PicturesForChecking/CustomBinningSecondElectron2DHistogram_ProjectionY.png")
 
 
 
@@ -470,7 +497,7 @@ cKaonCustomProjectionY.SetLeftMargin(0.12)
 # cKaonCustomProjectionY.SetLogx(True)
 
 
-CustomProjectionY_Kaon = hDstarK_bg.ProjectionY("CustomProjectionY_Kaon",80,150)
+CustomProjectionY_Kaon = hDstarK_bg.ProjectionY("CustomProjectionY_Kaon", bins_start, bins_fin)
 CustomProjectionY_Kaon.SetLineColor(ROOT.kRed)
 CustomProjectionY_Kaon.SetLineWidth(2)
 CustomProjectionY_Kaon.SetTitle("Kaon Pion ProjectionY")
@@ -482,22 +509,36 @@ CustomProjectionY_Kaon.Draw("E")
 
 
 ROOT.gStyle.SetOptFit(1)
-
 gaus2Landau = ROOT.TF1(
     "gaus2Landau",
-    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5])*TMath::Landau(x, [1], [1]*[5])",
-    2.e5, 1.5e6
+    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5]) + [6]*TMath::Landau(x, [1], [1]*[5])",
+    1.e5, 1e6
 )
 
 gaus2Landau.SetLineColor(ROOT.kBlack)
-# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_mean, gaus2_sigma, landau_amp, landau_mp, landau_width
-gaus2Landau.SetParameters(8000, 650e3, 1, 4000, 1, 0.1)
+# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_sigma, landau_width, Landau_Amplitude
+gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1, 1e5)
 gaus2Landau.SetNpx(1000)
 
 
 gaus2Landau.SetParLimits(5,0,1)
 gaus2Landau.SetParLimits(2,1,5)
 gaus2Landau.SetParLimits(4,1,5)
+# gaus2Landau = ROOT.TF1(
+#     "gaus2Landau",
+#     "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5])*TMath::Landau(x, [1], [1]*[5])",
+#     2.e5, 1.5e6
+# )
+
+# gaus2Landau.SetLineColor(ROOT.kBlack)
+# # Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_mean, gaus2_sigma, landau_amp, landau_mp, landau_width
+# gaus2Landau.SetParameters(8000, 650e3, 1, 4000, 1, 0.1)
+# gaus2Landau.SetNpx(1000)
+
+
+# gaus2Landau.SetParLimits(5,0,1)
+# gaus2Landau.SetParLimits(2,1,5)
+# gaus2Landau.SetParLimits(4,1,5)
 
 CustomProjectionY_Kaon.Fit("gaus2Landau", "R")
 
@@ -505,8 +546,10 @@ mean1  = gaus2Landau.GetParameter(1)
 sigma1 = gaus2Landau.GetParameter(2)
 sigma2 = gaus2Landau.GetParameter(4)
 
+p5Kaon = gaus2Landau.GetParameter(5)
+p5KaonErr = gaus2Landau.GetParError(5)
 
-cKaonCustomProjectionY.SaveAs("CustomBinningKaon2DHistogram_ProjectionY.png")
+cKaonCustomProjectionY.SaveAs("PicturesForChecking/CustomBinningKaon2DHistogram_ProjectionY.png")
 
 
 
@@ -720,7 +763,7 @@ cCombinedCustomProjectionY.SetLeftMargin(0.12)
 # cCombinedCustomProjectionY.SetLogx(True)
 
 
-CustomProjectionY_Combined = hTotal.ProjectionY("CustomProjectionY_Combined",80,150)
+CustomProjectionY_Combined = hTotal.ProjectionY("CustomProjectionY_Combined", bins_start, bins_fin)
 CustomProjectionY_Combined.SetLineColor(ROOT.kRed)
 CustomProjectionY_Combined.SetLineWidth(2)
 CustomProjectionY_Combined.SetTitle("Combined Pion ProjectionY")
@@ -733,15 +776,30 @@ CustomProjectionY_Combined.Draw("E")
 
 ROOT.gStyle.SetOptFit(1)
 
+# gaus2Landau = ROOT.TF1(
+#     "gaus2Landau",
+#     "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5])*TMath::Landau(x, [1], [1]*[5])",
+#     2.e5, 1.5e6
+# )
+
+# gaus2Landau.SetLineColor(ROOT.kBlack)
+# # Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_mean, gaus2_sigma, landau_amp, landau_mp, landau_width
+# gaus2Landau.SetParameters(8000, 650e3, 1, 4000, 1, 0.1)
+# gaus2Landau.SetNpx(1000)
+
+
+# gaus2Landau.SetParLimits(5,0,1)
+# gaus2Landau.SetParLimits(2,1,5)
+# gaus2Landau.SetParLimits(4,1,5)
 gaus2Landau = ROOT.TF1(
     "gaus2Landau",
-    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5])*TMath::Landau(x, [1], [1]*[5])",
-    2.e5, 1.5e6
+    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5]) + [6]*TMath::Landau(x, [1], [1]*[5])",
+    1.e5, 1.e6
 )
 
 gaus2Landau.SetLineColor(ROOT.kBlack)
-# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_mean, gaus2_sigma, landau_amp, landau_mp, landau_width
-gaus2Landau.SetParameters(8000, 650e3, 1, 4000, 1, 0.1)
+# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_sigma, landau_width, Landau_Amplitude
+gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1, 1e5)
 gaus2Landau.SetNpx(1000)
 
 
@@ -755,5 +813,15 @@ mean1  = gaus2Landau.GetParameter(1)
 sigma1 = gaus2Landau.GetParameter(2)
 sigma2 = gaus2Landau.GetParameter(4)
 
+p5Pion = gaus2Landau.GetParameter(5)
+p5PionErr = gaus2Landau.GetParError(5)
 
-cCombinedCustomProjectionY.SaveAs("CustomBinningCombined2DHistogram_ProjectionY.png")
+cCombinedCustomProjectionY.SaveAs("PicturesForChecking/CustomBinningCombined2DHistogram_ProjectionY.png")
+
+
+print(f'First Electron Landau Sigma = {p5FirstElectron} +/- {p5FirstElectronErr}')
+print(f'Second Electron Landau Sigma = {p5SecondElectron} +/- {p5SecondElectronErr}')
+print(f'Kaon Landau Sigma = {p5Kaon} +/- {p5KaonErr}')
+print(f'Pion Landau Sigma = {p5Pion} +/- {p5PionErr}')
+print(f'Start binning = {bins_start}')
+print(f"End binning = {bins_fin}")
