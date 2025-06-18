@@ -23,8 +23,8 @@ Histogram2D_DstarPion = ROOT.TH2D("Histogram2D_DstarPion", "D* Pion Energy vs Mo
 Histogram2D_DstarSlowPion = ROOT.TH2D("Histogram2D_DstarSlowPion", "Slow Pion Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
 Histogram2D_FirstElectron = ROOT.TH2D("Histogram2D_FirstElectron", "First Electron Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
 Histogram2D_SecondElectron = ROOT.TH2D("Histogram2D_SecondElectron", "Second Electron Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
-Histogram2D_SecondElectronNHits = ROOT.TH2D("Histogram2D_SecondElectronNHits", "Second Electron Energy vs NHits;Energy (arb units);NHits (arb units)", 100, 0,20,100,0, 5e6)
-Histogram2D_FirstElectronNHits = ROOT.TH2D("Histogram2D_FirstElectronNHits", "First Electron Energy vs NHits;Energy (arb units);NHits (arb units)", 100, 0,20,100,0, 5e6)
+Histogram2D_SecondElectronNHitsUsed = ROOT.TH2D("Histogram2D_SecondElectronNHitsUsed", "Second Electron Energy vs NHitsUsed;Energy (arb units);NHitsUsed (arb units)", 100, 0,20,100,0, 5e6)
+Histogram2D_FirstElectronNHitsUsed = ROOT.TH2D("Histogram2D_FirstElectronNHitsUsed", "First Electron Energy vs NHitsUsed;Energy (arb units);NHitsUsed (arb units)", 100, 0,20,100,0, 5e6)
 
 
 InvM = ROOT.RooRealVar("InvM", "m(Lambda)", 1.11, 1.12, "GeV/c^{2}")
@@ -59,13 +59,13 @@ print('Data Loaded')
 
 KaonMomentum = ROOT.RooRealVar("KaonMomentum", "", -1e8, 1e8)
 KaonSVDdEdx = ROOT.RooRealVar("KaonSVDdEdx", "", -1e8, 1e8)
-KaonSVDdEdxTrackNHits = ROOT.RooRealVar("KaonSVDdEdxTrackNHits","", -1e8, 1e8)
+KaonSVDdEdxTrackNHitsUsed = ROOT.RooRealVar("KaonSVDdEdxTrackNHitsUsed","", -1e8, 1e8)
 PionDMomentum = ROOT.RooRealVar("PionDMomentum", "", -1e8, 1e8)
 PionDSVDdEdx = ROOT.RooRealVar("PionDSVDdEdx", "", -1e8, 1e8)
-PionDSVDdEdxTrackNHits = ROOT.RooRealVar("PionDSVDdEdxTrackNHits", "", -1e8, 1e8)
+PionDSVDdEdxTrackNHitsUsed = ROOT.RooRealVar("PionDSVDdEdxTrackNHitsUsed", "", -1e8, 1e8)
 SlowPionMomentum = ROOT.RooRealVar("SlowPionMomentum", "", -1e8, 1e8)
 SlowPionSVDdEdx = ROOT.RooRealVar("SlowPionSVDdEdx", "", -1e8, 1e8)
-SlowPionSVDdEdxTrackNHits = ROOT.RooRealVar("SlowPionSVDdEdxTrackNHits", "", -1e8, 1e8)
+SlowPionSVDdEdxTrackNHitsUsed = ROOT.RooRealVar("SlowPionSVDdEdxTrackNHitsUsed", "", -1e8, 1e8)
 event_Dstar = ROOT.RooRealVar("event","",-1e8,1e8)
 
 ProtonMomentum = ROOT.RooRealVar("ProtonMomentum", "momentum for Proton (GeV)", -1e8, 1e8)
@@ -74,25 +74,25 @@ ProtonSVDdEdx = ROOT.RooRealVar("ProtonSVDdEdx", "", -1e8, 1e8)
 PionLambdaMomentum = ROOT.RooRealVar("PionLambdaMomentum", "momentum for pion (GeV)", -1e8, 1e8)
 PionLambdaSVDdEdxTrackMomentum = ROOT.RooRealVar("PionLambdaSVDdEdxTrackMomentum", "momentum for pion (GeV), from the track", -1e8, 1e8)
 PionLambdaSVDdEdx = ROOT.RooRealVar("PionLambdaSVDdEdx", "", -1e8, 1e8)
-PionLambdaSVDdEdxTrackNHits = ROOT.RooRealVar("PionLambdaSVDdEdxTrackNHits", "", -1e8, 1e8)
+PionLambdaSVDdEdxTrackNHitsUsed = ROOT.RooRealVar("PionLambdaSVDdEdxTrackNHitsUsed", "", -1e8, 1e8)
 event_Lambda = ROOT.RooRealVar("event","",-1e8,1e8)
 
 FirstElectronMomentum = ROOT.RooRealVar("FirstElectronMomentum", "", -1e8, 1e8)
 FirstElectronSVDdEdx = ROOT.RooRealVar("FirstElectronSVDdEdx", "", -1e8, 1e8)
-FirstElectronSVDdEdxTrackNHits = ROOT.RooRealVar("FirstElectronSVDdEdxTrackNHits", "", -1e8, 1e8)
+FirstElectronSVDdEdxTrackNHitsUsed = ROOT.RooRealVar("FirstElectronSVDdEdxTrackNHitsUsed", "", -1e8, 1e8)
 SecondElectronMomentum = ROOT.RooRealVar("SecondElectronMomentum", "", -1e8, 1e8)
 SecondElectronSVDdEdx = ROOT.RooRealVar("SecondElectronSVDdEdx", "", -1e8, 1e8)
-SecondElectronSVDdEdxTrackNHits = ROOT.RooRealVar("SecondElectronSVDdEdxTrackNHits", "", -1e8, 1e8)
+SecondElectronSVDdEdxTrackNHitsUsed = ROOT.RooRealVar("SecondElectronSVDdEdxTrackNHitsUsed", "", -1e8, 1e8)
 
 
 variables_Dstar.add(KaonMomentum)
-variables_Dstar.add(KaonSVDdEdxTrackNHits)
+variables_Dstar.add(KaonSVDdEdxTrackNHitsUsed)
 variables_Dstar.add(PionDMomentum)
 variables_Dstar.add(SlowPionMomentum)
 variables_Dstar.add(PionDSVDdEdx)
-variables_Dstar.add(PionDSVDdEdxTrackNHits)
+variables_Dstar.add(PionDSVDdEdxTrackNHitsUsed)
 variables_Dstar.add(SlowPionSVDdEdx)
-variables_Dstar.add(SlowPionSVDdEdxTrackNHits)
+variables_Dstar.add(SlowPionSVDdEdxTrackNHitsUsed)
 variables_Dstar.add(KaonSVDdEdx)
 variables_Dstar.add(event_Dstar)
 variables.add(ProtonMomentum)
@@ -101,14 +101,14 @@ variables.add(ProtonSVDdEdx)
 variables.add(PionLambdaMomentum)
 variables.add(PionLambdaSVDdEdxTrackMomentum)
 variables.add(PionLambdaSVDdEdx)
-variables.add(PionLambdaSVDdEdxTrackNHits)
+variables.add(PionLambdaSVDdEdxTrackNHitsUsed)
 variables.add(event_Lambda)
 variables_Gamma.add(FirstElectronMomentum)
 variables_Gamma.add(FirstElectronSVDdEdx)
-variables_Gamma.add(FirstElectronSVDdEdxTrackNHits)
+variables_Gamma.add(FirstElectronSVDdEdxTrackNHitsUsed)
 variables_Gamma.add(SecondElectronMomentum)
 variables_Gamma.add(SecondElectronSVDdEdx)
-variables_Gamma.add(SecondElectronSVDdEdxTrackNHits)
+variables_Gamma.add(SecondElectronSVDdEdxTrackNHitsUsed)
 
 
 LambdaDataset = ROOT.RooDataSet("LambdaDataset", "LambdaDataset", preselTree, variables, "ProtonMomentum > 0.25")
@@ -271,7 +271,7 @@ hGammaFirstElectron_bg = ROOT.TH2F(
 
 treeGamma_sw.Draw(
     "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron",
-    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHits>0)",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>0)",
     "goff"
 )
 
@@ -323,7 +323,7 @@ hGammaSecondElectron_bg = ROOT.TH2F(
 
 treeGamma_sw.Draw(
     "SecondElectronSVDdEdx:SecondElectronMomentum/0.0005110>>hGammaSecondElectron",
-    "(SecondElectronSVDdEdx>0)&(SecondElectronSVDdEdxTrackNHits>0)",
+    "(SecondElectronSVDdEdx>0)&(SecondElectronSVDdEdxTrackNHitsUsed>0)",
     "goff"
 )
 
@@ -379,7 +379,7 @@ hDstarK_bg = ROOT.TH2F(
 
 treeDstar_sw.Draw(
     "KaonSVDdEdx:KaonMomentum/0.4937>>hDstarK",
-    "nSignalDstar_sw * (KaonSVDdEdx>0)&(KaonSVDdEdxTrackNHits>2)",
+    "nSignalDstar_sw * (KaonSVDdEdx>0)&(KaonSVDdEdxTrackNHitsUsed>2)",
     "goff"
 )
 
@@ -555,9 +555,9 @@ hSlowPion_bg.Sumw2()
 hPionD_bg.Sumw2()
 hPionLambda_bg.Sumw2()
 
-treeLambda_sw.Draw("PionLambdaSVDdEdx:PionLambdaMomentum/0.1396>>hPionLambda_bg", "nSignalLambda_sw*(PionLambdaSVDdEdx>0)&(PionLambdaSVDdEdxTrackNHits==3)", "goff")
-treeDstar_sw.Draw("PionDSVDdEdx:PionDMomentum/0.1396>>hPionD_bg", "nSignalDstar_sw*(PionDSVDdEdx>0)&(PionDSVDdEdxTrackNHits==3)", "goff")
-treeDstar_sw.Draw("SlowPionSVDdEdx:SlowPionMomentum/0.1396>>hSlowPion_bg", "nSignalDstar_sw*(SlowPionSVDdEdx>0)&(SlowPionSVDdEdxTrackNHits==3)", "goff")
+treeLambda_sw.Draw("PionLambdaSVDdEdx:PionLambdaMomentum/0.1396>>hPionLambda_bg", "nSignalLambda_sw*(PionLambdaSVDdEdx>0)&(PionLambdaSVDdEdxTrackNHitsUsed==3)", "goff")
+treeDstar_sw.Draw("PionDSVDdEdx:PionDMomentum/0.1396>>hPionD_bg", "nSignalDstar_sw*(PionDSVDdEdx>0)&(PionDSVDdEdxTrackNHitsUsed==3)", "goff")
+treeDstar_sw.Draw("SlowPionSVDdEdx:SlowPionMomentum/0.1396>>hSlowPion_bg", "nSignalDstar_sw*(SlowPionSVDdEdx>0)&(SlowPionSVDdEdxTrackNHitsUsed==3)", "goff")
 
 hTotal = hPionLambda_bg.Clone("hTotal")
 hTotal.Add(hPionD_bg)
@@ -570,7 +570,7 @@ hTotal.SetMinimum(0.)
 cCombined.SetLeftMargin(0.12) 
 hTotal.SetTitle("Combined Energy vs Momentum Histogram")
 hTotal.Draw("COLZ")
-cCombined.SaveAs("Combined2DHistogramNHits.png")
+cCombined.SaveAs("Combined2DHistogramNHitsUsed.png")
 
 
 
