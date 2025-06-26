@@ -3,6 +3,8 @@ from ROOT import TCanvas
 from array import array
 import numpy as np
 import uproot
+import pandas as pd
+# from scipy import stats
 
 latex = ROOT . TLatex ()
 latex . SetNDC ()
@@ -53,6 +55,43 @@ with uproot.open("Gamma_8Apr.root") as file:
     tree = file["Gamma"]
     FirstElectronSVDdEdxArray = tree["FirstElectronSVDdEdx"].array(library="np")
 
+def CMS_mean(arr):
+    arr = np.array(arr)
+    if len(arr) < 2:
+        return np.nan
+    else:
+        return ((1/len(arr)) * np.sum((1.0/arr)**2))**(-1/2)
+
+def ATLAS_mean(arr):
+    arr = np.array(arr)
+    if len(arr) <= 2:
+        return (np.sum(arr)/len(arr))
+    elif len(arr) == 3 or len(arr == 4):
+        arr = arr[:-1]
+        return (np.sum(arr)/len(arr))
+    else:
+        arr = arr[:-2]
+        return (np.sum(arr)/len(arr))
+
+
+def make_ALICE_weights(arr):
+    n = len(arr)
+    weights = np.ones(n)
+    if n >= 2:
+        weights[-2:] = 0.5
+    return weights
+
+def ALICE_mean(arr):
+    arr = np.array(arr)
+    if len(arr) in (3,4):
+        return (arr[0] + arr[1])/2
+    elif len(arr) < 2:
+        return np.nan
+    else:
+        return sum(arr * make_ALICE_weights(arr)) / sum(make_ALICE_weights(arr))
+    
+
+
 # event = 18
 # bins_start = 2
 # bins_fin = -3
@@ -73,50 +112,73 @@ with uproot.open("Gamma_8Apr.root") as file:
 #     print(f'Expected Value: {FirstElectronSVDdEdxArray[event]}')
 #     print(f'Difference of Values: {FirstElectronSVDdEdxArray[event] - np.mean(tester[bins_start:bins_fin])}')
     
-
 # print('Even ones')
 
-event = 3826
+
+
+event = 26955
 
 tester = FirstElectronSVDdEdxListArray[event]
 
-even_values = tester[::2]
 
-even_sorted = np.sort(even_values)
-even_without_max2 = even_sorted[:-2]
+inf_indices = [
+    i for i, row in enumerate(FirstElectronSVDdEdxListArray)
+    if np.any(np.isinf(np.asarray(row, dtype=np.float64)))
+]
 
-print(f'Even indices values: {even_values}')
-print(f'Even indices sorted: {even_sorted}')
-print(f'Even indices without max 2: {even_without_max2}')
-print(f'Mean of even indices without max 2: {np.mean(even_without_max2)}')
-print(f'Expected Value: {FirstElectronSVDdEdxArray[event]}')
+mask = np.ones(len(FirstElectronSVDdEdxArray), dtype=bool)
+mask[inf_indices] = False
 
-# for i in range(2000,10000):
-#     tester = FirstElectronSVDdEdxListArray[i]
-#     even_values = tester[::2]
-#     even_sorted = np.sort(even_values)
-#     even_without_max2 = even_sorted[:-2]
-#     Difference = np.mean(even_without_max2) - FirstElectronSVDdEdxArray[i]
-#     # print(f'Difference between values: {Difference}')
-#     if Difference != 0 and ~np.isnan(Difference):
-#         print(f'Event {i}')
+filtered_FirstElectronSVDdEdxArray = FirstElectronSVDdEdxArray[mask]
+filtered_FirstElectronSVDdEdxListArray = FirstElectronSVDdEdxListArray[mask]
 
 
-# Event 2271
-# Event 2736
-# Event 3443
-# Event 3826
-# Event 4556
-# Event 4640
-# Event 5203
-# Event 6384
-# Event 8813
-# Event 9239
-# Event 9556
+# odd_values = tester[1::2]
+# even_values = tester[::2]
 
-# print(f'Size of event 11, {FirstElectronSVDdEdxListArray[11].size}')
-# print(f'Size of event 12, {FirstElectronSVDdEdxListArray[12].size}')
-# print(f'Size of event 13, {FirstElectronSVDdEdxListArray[13].size}')
-# print(f'Size of event 14, {FirstElectronSVDdEdxListArray[14].size}')
-# print(f'Size of event 15, {FirstElectronSVDdEdxListArray[15].size}')
-# print(f'Size of event 16, {FirstElectronSVDdEdxListArray[16].size}')
+# odd_sorted = np.sort(odd_values)
+# odd_without_max2 = odd_sorted[:-2]
+# even_sorted = np.sort(even_values)
+# even_without_max2 = even_sorted[:-2]
+
+# Harmonic_mean_even = len(even_without_max2)/(np.sum(1.0/even_without_max2))
+# print(f'Harmonic Mean: {Harmonic_mean_even}')
+# # print(f'Harm mean scipy: {stats.hmean(even_values)}')
+
+# print(f'Full array: {FirstElectronSVDdEdxListArray[event]}')
+# print(f'Even indices values: {even_values}')
+# # print(f'Odd indices values: {odd_values}')
+# print(f'Even indices sorted: {even_sorted}')
+# # print(f'Even indices without max 2: {even_without_max2}')
+# print(f'Mean of even indices without max 2: {np.mean(even_without_max2)}')
+# # print(f'Mean of odd indices without max 2: {np.mean(odd_without_max2)}')
+# print(f'Expected Value: {FirstElectronSVDdEdxArray[event]}')
+
+n = 0
+n_neg = 0
+for i in range(len(filtered_FirstElectronSVDdEdxListArray)):
+    tester = filtered_FirstElectronSVDdEdxListArray[i]
+    even_values = tester[::2]
+    even_sorted = np.sort(even_values)
+    even_without_max2 = even_sorted[:-2]
+    # Harmonic_mean_even = len(even_values)/(np.sum(1.0/even_values))
+    # Difference = Harmonic_mean_even - np.mean(even_without_max2)
+    Difference = CMS_mean(even_without_max2) - np.mean(even_without_max2)
+    # Difference = np.mean(even_without_max2) - FirstElectronSVDdEdxArray[i]
+    # print(f'Difference between values: {Difference}')
+    if Difference > 100000 and ~np.isnan(Difference):
+        # print(f'Event {i}')
+        # print(f'Even indices without max 2: {even_without_max2}')
+        # print(f'Harmonic mean: {Harmonic_mean_even}')
+        # print(f'Mean of even indices without max 2: {np.mean(even_without_max2)}')
+        # print(f'Difference {np.abs(Difference)}')
+        # print(f'Expected Value: {FirstElectronSVDdEdxArray[i]}')
+        n = n+1
+    elif Difference < -100000 and ~np.isnan(Difference):
+        n_neg = n_neg+1
+    if (i%50000 == 0):
+        print(f'Event number {i}')
+
+print(f'Number of times that ATLAS_mean_even - np.mean > 100 000: {n}')
+print(f'Number of times that ATLAS_mean_even - np.mean < -100 000: {n_neg}')
+print(f'Percent chance for this to happen: {((n+n_neg)/len(filtered_FirstElectronSVDdEdxListArray))*100}%')
