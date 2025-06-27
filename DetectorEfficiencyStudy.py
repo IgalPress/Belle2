@@ -158,8 +158,13 @@ new_tree.Branch("CMS_mean", cms_mean_value, "CMS_mean/D")
 new_tree.Branch("ALICE_mean", alice_mean_value, "ALICE_mean/D")
 new_tree.Branch("ATLAS_mean", atlas_mean_value, "ATLAS_mean/D")
 new_tree.Branch("Harmonic_mean", harmonic_mean_value, "Harmonic_mean/D")
+<<<<<<< HEAD
 new_tree.Branch("filtered_FirstElectronSVDdEdxArray", filtered_FirstElectronSVDdEdxArray_value, "filtered_FirstElectronSVDdEdxArray/D")
 new_tree.Branch("filtered_FirstElectronMomentumArray", filtered_FirstElectronMomentumArray_value, "filtered_FirstElectronMomentumArray/D")
+=======
+new_tree.Branch("filtered_FirstElectronSVDdEdxArray", filtered_FirstElectronSVDdEdxArray, "filtered_FirstElectronSVDdEdxArray/D")
+new_tree.Branch("filtered_FirstElectronMomentumArray", filtered_FirstElectronMomentumArray, "filtered_FirstElectronMomentumArray/D")
+>>>>>>> 7dad7b44913abffebc27967ec5a6219a5169e6df
 
 for cms, alice, atlas, harm, filtered_energy, filtered_momentum in zip(cms_means, alice_means, atlas_means, harmonic_means, filtered_FirstElectronSVDdEdxArray,filtered_FirstElectronMomentumArray):
     cms_mean_value[0] = cms
@@ -170,13 +175,18 @@ for cms, alice, atlas, harm, filtered_energy, filtered_momentum in zip(cms_means
     filtered_FirstElectronMomentumArray_value[0] = filtered_momentum
 
     new_tree.Fill()
+<<<<<<< HEAD
 
 new_tree.Write()
 output_file.Close()
 
 
 
+=======
+>>>>>>> 7dad7b44913abffebc27967ec5a6219a5169e6df
 
+new_tree.Write()
+output_file.Close()
 
 # odd_values = tester[1::2]
 # even_values = tester[::2]
