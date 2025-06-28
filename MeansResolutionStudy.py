@@ -17,17 +17,17 @@ GammaMeansFile = ROOT.TFile("Gamma_8Apr_withCMSmean.root")
 LambdaTree = LambdaFile.Get("Lambda")
 DstarTree = DstarFile.Get("Dstar")
 GammaTree = GammaFile.Get("Gamma")
-GammaMeansTree = GammaMeansFile.Get("Gamma_Means;2")
+GammaMeansTree = GammaMeansFile.Get("Gamma_Means")
 
-Histogram2D_Kaon = ROOT.TH2D("Histogram2D_Kaon", "Kaon Energy vs Momentum;Energy (arb units);Momentum (GeV/c)",  100, 0,20,100,0, 5e6)
-Histogram2D_Proton = ROOT.TH2D("Histogram2D_Proton", "Proton Energy vs Momentum;Energy (arb units);Momentum (GeV/c)",  100, 0,20,100,0, 5e6)
-Histogram2D_Lambda = ROOT.TH2D("Histogram2D_Lambda", "Lambda Pion Energy vs Momentum;Energy (arb units);Momentum  (GeV/c)", 100, 0,20,100,0, 5e6)
-Histogram2D_DstarPion = ROOT.TH2D("Histogram2D_DstarPion", "D* Pion Energy vs Momentum;Energy (arb units);Momentum (GeV/c)",  100, 0,20,100,0, 5e6)
-Histogram2D_DstarSlowPion = ROOT.TH2D("Histogram2D_DstarSlowPion", "Slow Pion Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
-Histogram2D_FirstElectron = ROOT.TH2D("Histogram2D_FirstElectron", "First Electron Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
-Histogram2D_SecondElectron = ROOT.TH2D("Histogram2D_SecondElectron", "Second Electron Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
-Histogram2D_SecondElectronNHitsUsed = ROOT.TH2D("Histogram2D_SecondElectronNHitsUsed", "Second Electron Energy vs NHitsUsed;Energy (arb units);NHitsUsed (arb units)", 100, 0,20,100,0, 5e6)
-Histogram2D_FirstElectronNHitsUsed = ROOT.TH2D("Histogram2D_FirstElectronNHitsUsed", "First Electron Energy vs NHitsUsed;Energy (arb units);NHitsUsed (arb units)", 100, 0,20,100,0, 5e6)
+# Histogram2D_Kaon = ROOT.TH2D("Histogram2D_Kaon", "Kaon Energy vs Momentum;Energy (arb units);Momentum (GeV/c)",  100, 0,20,100,0, 5e6)
+# Histogram2D_Proton = ROOT.TH2D("Histogram2D_Proton", "Proton Energy vs Momentum;Energy (arb units);Momentum (GeV/c)",  100, 0,20,100,0, 5e6)
+# Histogram2D_Lambda = ROOT.TH2D("Histogram2D_Lambda", "Lambda Pion Energy vs Momentum;Energy (arb units);Momentum  (GeV/c)", 100, 0,20,100,0, 5e6)
+# Histogram2D_DstarPion = ROOT.TH2D("Histogram2D_DstarPion", "D* Pion Energy vs Momentum;Energy (arb units);Momentum (GeV/c)",  100, 0,20,100,0, 5e6)
+# Histogram2D_DstarSlowPion = ROOT.TH2D("Histogram2D_DstarSlowPion", "Slow Pion Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
+# Histogram2D_FirstElectron = ROOT.TH2D("Histogram2D_FirstElectron", "First Electron Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
+# Histogram2D_SecondElectron = ROOT.TH2D("Histogram2D_SecondElectron", "Second Electron Energy vs Momentum;Energy (arb units);Momentum (GeV/c)", 100, 0,20,100,0, 5e6)
+# Histogram2D_SecondElectronNHitsUsed = ROOT.TH2D("Histogram2D_SecondElectronNHitsUsed", "Second Electron Energy vs NHitsUsed;Energy (arb units);NHitsUsed (arb units)", 100, 0,20,100,0, 5e6)
+# Histogram2D_FirstElectronNHitsUsed = ROOT.TH2D("Histogram2D_FirstElectronNHitsUsed", "First Electron Energy vs NHitsUsed;Energy (arb units);NHitsUsed (arb units)", 100, 0,20,100,0, 5e6)
 
 
 InvM = ROOT.RooRealVar("InvM", "m(Lambda)", 1.11, 1.12, "GeV/c^{2}")
@@ -116,6 +116,8 @@ ATLAS_mean = ROOT.RooRealVar("ATLAS_mean","",-1e8,1e8)
 Harmonic_mean = ROOT.RooRealVar("Harmonic_mean","",-1e8,1e8)
 filtered_FirstElectronSVDdEdxArray = ROOT.RooRealVar("filtered_FirstElectronSVDdEdxArray","",-1e8,1e8)
 filtered_FirstElectronMomentumArray = ROOT.RooRealVar("filtered_FirstElectronMomentumArray","",-1e8,1e8)
+filtered_FirstElectronSVDdEdxTrackNHitsUsedArray = ROOT.RooRealVar("filtered_FirstElectronSVDdEdxTrackNHitsUsedArray","",-1e8,1e8)
+original_even_mean = ROOT.RooRealVar("original_even_mean","",-1e8,1e8)
 
 variables_Dstar.add(KaonMomentum)
 variables_Dstar.add(KaonSVDdEdxTrackNHitsUsed)
@@ -149,6 +151,9 @@ variables_GammaMean.add(ATLAS_mean)
 variables_GammaMean.add(Harmonic_mean)
 variables_GammaMean.add(filtered_FirstElectronSVDdEdxArray)
 variables_GammaMean.add(filtered_FirstElectronMomentumArray)
+variables_GammaMean.add(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray)
+variables_GammaMean.add(original_even_mean)
+
 
 LambdaDataset = ROOT.RooDataSet("LambdaDataset", "LambdaDataset", preselTree, variables, "ProtonMomentum > 0.25")
 DstarDataset = ROOT.RooDataSet("DstarDataset", "DstarDataset", preselTreeDstar, variables_Dstar)
@@ -780,3 +785,767 @@ latex.DrawLatex(0.4,0.8, "L. width NHitsUsed>0: %.4f +- %.4f" % (LandauWidth0, L
 
 
 cHarmonic_meanVsMomCustomProjectionY.SaveAs("MeanChecking/Harmonic_meanProjectionY.png")
+
+############################################################################
+
+hGammaFirstElectron_bg1 = ROOT.TH1F(
+    "hGammaFirstElectron1",
+    "hGammaFirstElectron1",
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+
+preselTreeGamma.Draw(
+    "FirstElectronSVDdEdxList>>hGammaFirstElectron1",
+    "(FirstElectronSVDdEdx>0)",
+    "goff"
+)
+
+
+
+
+cFirstElectronCustom = ROOT.TCanvas("cFirstElectronCustom", "Custom Binning FirstElectron", 800, 600)
+hGammaFirstElectron_bg1.Draw("COLZ")
+cFirstElectronCustom.SaveAs("FirstElectronNTrackHits.png")
+
+
+treeGamma_sw.SetEstimate(treeGamma_sw.GetEntries() + 1)
+
+
+treeGamma_sw.Draw("FirstElectronMomentum/0.0005110", "", "goff")
+
+# Retrieve the array of values
+vXP = treeGamma_sw.GetV1()
+
+# Number of bins
+m_numPBins = 100
+
+kdBinsP = ROOT.TKDTreeBinning(treeGamma_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
+
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
+
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
+
+# Define the histogram with custom binning
+m_numDEdxBins = 200  
+m_dedxCutoff = 5e6   
+
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
+
+hGammaFirstElectron_bg0 = ROOT.TH2F(
+    "hGammaFirstElectron0",
+    "hGammaFirstElectron0",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+hGammaFirstElectron_bg1 = ROOT.TH2F(
+    "hGammaFirstElectron1",
+    "hGammaFirstElectron1",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+hGammaFirstElectron_bg2 = ROOT.TH2F(
+    "hGammaFirstElectron2",
+    "hGammaFirstElectron2",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+hGammaFirstElectron_bg3 = ROOT.TH2F(
+    "hGammaFirstElectron3",
+    "hGammaFirstElectron3",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+treeGamma_sw.Draw(
+    "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron0",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>0)",
+    "goff"
+)
+
+treeGamma_sw.Draw(
+    "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron1",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>1)",
+    "goff"
+)
+
+treeGamma_sw.Draw(
+    "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron2",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>2)",
+    "goff"
+)
+
+treeGamma_sw.Draw(
+    "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron3",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>3)",
+    "goff"
+)
+
+
+
+cFirstElectronCustom = ROOT.TCanvas("cFirstElectronCustom", "Custom Binning FirstElectron", 800, 600)
+hGammaFirstElectron_bg0.Draw("COLZ")
+hGammaFirstElectron_bg1.Draw("COLZ SAME")
+hGammaFirstElectron_bg2.Draw("COLZ SAME")
+hGammaFirstElectron_bg3.Draw("COLZ SAME")
+cFirstElectronCustom.SaveAs("FirstElectronNTrackHits.png")
+
+
+
+
+cFirstElectronCustomProjectionY = ROOT.TCanvas("cFirstElectronCustomProjectionY", "Custom Binning FirstElectron 2D ProjectionY", 800, 600)
+
+
+
+cFirstElectronCustomProjectionY.SetRightMargin(0.15)
+cFirstElectronCustomProjectionY.SetLeftMargin(0.12)
+# cFirstElectronCustomProjectionY.SetLogy(True)
+# cFirstElectronCustomProjectionY.SetLogx(True)
+
+
+CustomProjectionY_FirstElectron0 = hGammaFirstElectron_bg0.ProjectionY("CustomProjectionY_FirstElectron0", bins_start, bins_fin)
+CustomProjectionY_FirstElectron1 = hGammaFirstElectron_bg1.ProjectionY("CustomProjectionY_FirstElectron1", bins_start, bins_fin)
+CustomProjectionY_FirstElectron2 = hGammaFirstElectron_bg2.ProjectionY("CustomProjectionY_FirstElectron2", bins_start, bins_fin)
+CustomProjectionY_FirstElectron3 = hGammaFirstElectron_bg3.ProjectionY("CustomProjectionY_FirstElectron3", bins_start, bins_fin)
+CustomProjectionY_FirstElectron0.SetLineColor(ROOT.kRed)
+CustomProjectionY_FirstElectron0.SetLineWidth(2)
+CustomProjectionY_FirstElectron0.SetTitle("First Electron ProjectionY")
+CustomProjectionY_FirstElectron0.GetYaxis().SetTitle("Mean Energy Loss")
+CustomProjectionY_FirstElectron0.GetXaxis().SetTitle("P/M (GeV/C)")
+CustomProjectionY_FirstElectron0.Draw("E1 SAME")
+CustomProjectionY_FirstElectron1.Draw("E1 SAME")
+CustomProjectionY_FirstElectron2.Draw("E1 SAME")
+CustomProjectionY_FirstElectron3.Draw("E1 SAME")
+
+CustomProjectionY_FirstElectron0.SetStats(False)
+
+
+gaus2Landau = ROOT.TF1(
+    "gaus2Landau",
+    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5]) + [6]*TMath::Landau(x, [1], [1]*[5])",
+    1.e5, 1.5e6
+)
+
+gaus2Landau.SetLineColor(ROOT.kBlack)
+# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_sigma, landau_width, Landau_Amplitude
+gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1, 1e5)
+gaus2Landau.SetNpx(1000)
+
+gaus2Landau.FixParameter(4,2.1)
+gaus2Landau.FixParameter(2,2.7)
+gaus2Landau.SetParLimits(5,0,1)
+gaus2Landau.SetParLimits(2,1,5)
+gaus2Landau.SetParLimits(4,1,5)
+
+CustomProjectionY_FirstElectron0.Fit("gaus2Landau", "R SAME")
+LandauWidth0 = gaus2Landau.GetParameter(5)
+LandauWidthErr0 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron1.Fit("gaus2Landau", "R SAME")
+LandauWidth1 = gaus2Landau.GetParameter(5)
+LandauWidthErr1 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron2.Fit("gaus2Landau", "R SAME")
+LandauWidth2 = gaus2Landau.GetParameter(5)
+LandauWidthErr2 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron3.Fit("gaus2Landau", "R SAME")
+LandauWidth3 = gaus2Landau.GetParameter(5)
+LandauWidthErr3 = gaus2Landau.GetParError(5)
+
+latex.DrawLatex(0.4,0.8, "L. width NHitsUsed>0: %.4f +- %.4f" % (LandauWidth0, LandauWidthErr0))
+latex.DrawLatex(0.4,0.75, "L. width NHitsUsed>1: %.4f +- %.4f" % (LandauWidth1, LandauWidthErr1))
+latex.DrawLatex(0.4,0.7, "L. width NHitsUsed>2: %.4f +- %.4f" % (LandauWidth2, LandauWidthErr2))
+latex.DrawLatex(0.4,0.65, "L. width NHitsUsed>3: %.4f +- %.4f" % (LandauWidth3, LandauWidthErr3))
+# p5FirstElectron = gaus2Landau.GetParameter(5)
+# p5FirstElectronErr = gaus2Landau.GetParError(5)
+# p1FirstElectron = gaus2Landau.GetParameter(1)
+
+
+cFirstElectronCustomProjectionY.SaveAs("MeanChecking/CustomBinningFirstElectron2DHistogram_ProjectionY.png")
+
+
+
+
+
+
+############################################################################
+
+hGammaFirstElectron_bg1 = ROOT.TH1F(
+    "hGammaFirstElectron1",
+    "hGammaFirstElectron1",
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+
+preselTreeGamma.Draw(
+    "FirstElectronSVDdEdxList>>hGammaFirstElectron1",
+    "(FirstElectronSVDdEdx>0)",
+    "goff"
+)
+
+
+
+
+cFirstElectronCustom = ROOT.TCanvas("cFirstElectronCustom", "Custom Binning FirstElectron", 800, 600)
+hGammaFirstElectron_bg1.Draw("COLZ")
+# cFirstElectronCustom.SaveAs("FirstElectronNTrackHits.png")
+
+
+treeGamma_sw.SetEstimate(treeGamma_sw.GetEntries() + 1)
+
+
+treeGamma_sw.Draw("FirstElectronMomentum/0.0005110", "", "goff")
+
+# Retrieve the array of values
+vXP = treeGamma_sw.GetV1()
+
+# Number of bins
+m_numPBins = 100
+
+kdBinsP = ROOT.TKDTreeBinning(treeGamma_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
+
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
+
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
+
+# Define the histogram with custom binning
+m_numDEdxBins = 200  
+m_dedxCutoff = 5e6   
+
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
+
+hGammaFirstElectron_bg0 = ROOT.TH2F(
+    "hGammaFirstElectron0",
+    "hGammaFirstElectron0",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+hGammaFirstElectron_bg1 = ROOT.TH2F(
+    "hGammaFirstElectron1",
+    "hGammaFirstElectron1",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+hGammaFirstElectron_bg2 = ROOT.TH2F(
+    "hGammaFirstElectron2",
+    "hGammaFirstElectron2",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+hGammaFirstElectron_bg3 = ROOT.TH2F(
+    "hGammaFirstElectron3",
+    "hGammaFirstElectron3",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+treeGamma_sw.Draw(
+    "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron0",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>0)",
+    "goff"
+)
+
+treeGamma_sw.Draw(
+    "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron1",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>1)",
+    "goff"
+)
+
+treeGamma_sw.Draw(
+    "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron2",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>2)",
+    "goff"
+)
+
+treeGamma_sw.Draw(
+    "FirstElectronSVDdEdx:FirstElectronMomentum/0.0005110>>hGammaFirstElectron3",
+    "(FirstElectronSVDdEdx>0)&(FirstElectronSVDdEdxTrackNHitsUsed>3)",
+    "goff"
+)
+
+
+
+cFirstElectronCustom = ROOT.TCanvas("cFirstElectronCustom", "Custom Binning FirstElectron", 800, 600)
+hGammaFirstElectron_bg0.Draw("COLZ")
+hGammaFirstElectron_bg1.Draw("COLZ SAME")
+hGammaFirstElectron_bg2.Draw("COLZ SAME")
+hGammaFirstElectron_bg3.Draw("COLZ SAME")
+cFirstElectronCustom.SaveAs("FirstElectronNTrackHits.png")
+
+
+
+
+cFirstElectronCustomProjectionY = ROOT.TCanvas("cFirstElectronCustomProjectionY", "Custom Binning FirstElectron 2D ProjectionY", 800, 600)
+
+
+
+cFirstElectronCustomProjectionY.SetRightMargin(0.15)
+cFirstElectronCustomProjectionY.SetLeftMargin(0.12)
+# cFirstElectronCustomProjectionY.SetLogy(True)
+# cFirstElectronCustomProjectionY.SetLogx(True)
+
+
+CustomProjectionY_FirstElectron0 = hGammaFirstElectron_bg0.ProjectionY("CustomProjectionY_FirstElectron0", bins_start, bins_fin)
+CustomProjectionY_FirstElectron1 = hGammaFirstElectron_bg1.ProjectionY("CustomProjectionY_FirstElectron1", bins_start, bins_fin)
+CustomProjectionY_FirstElectron2 = hGammaFirstElectron_bg2.ProjectionY("CustomProjectionY_FirstElectron2", bins_start, bins_fin)
+CustomProjectionY_FirstElectron3 = hGammaFirstElectron_bg3.ProjectionY("CustomProjectionY_FirstElectron3", bins_start, bins_fin)
+CustomProjectionY_FirstElectron0.SetLineColor(ROOT.kRed)
+CustomProjectionY_FirstElectron0.SetLineWidth(2)
+CustomProjectionY_FirstElectron0.SetTitle("First Electron ProjectionY")
+CustomProjectionY_FirstElectron0.GetYaxis().SetTitle("Mean Energy Loss")
+CustomProjectionY_FirstElectron0.GetXaxis().SetTitle("P/M (GeV/C)")
+CustomProjectionY_FirstElectron0.Draw("E1 SAME")
+CustomProjectionY_FirstElectron1.Draw("E1 SAME")
+CustomProjectionY_FirstElectron2.Draw("E1 SAME")
+CustomProjectionY_FirstElectron3.Draw("E1 SAME")
+
+CustomProjectionY_FirstElectron0.SetStats(False)
+
+
+gaus2Landau = ROOT.TF1(
+    "gaus2Landau",
+    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5]) + [6]*TMath::Landau(x, [1], [1]*[5])",
+    1.e5, 1.5e6
+)
+
+gaus2Landau.SetLineColor(ROOT.kBlack)
+# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_sigma, landau_width, Landau_Amplitude
+gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1, 1e5)
+gaus2Landau.SetNpx(1000)
+
+gaus2Landau.FixParameter(4,2.1)
+gaus2Landau.FixParameter(2,2.7)
+gaus2Landau.SetParLimits(5,0,1)
+gaus2Landau.SetParLimits(2,1,5)
+gaus2Landau.SetParLimits(4,1,5)
+
+CustomProjectionY_FirstElectron0.Fit("gaus2Landau", "R SAME")
+LandauWidth0 = gaus2Landau.GetParameter(5)
+LandauWidthErr0 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron1.Fit("gaus2Landau", "R SAME")
+LandauWidth1 = gaus2Landau.GetParameter(5)
+LandauWidthErr1 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron2.Fit("gaus2Landau", "R SAME")
+LandauWidth2 = gaus2Landau.GetParameter(5)
+LandauWidthErr2 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron3.Fit("gaus2Landau", "R SAME")
+LandauWidth3 = gaus2Landau.GetParameter(5)
+LandauWidthErr3 = gaus2Landau.GetParError(5)
+
+latex.DrawLatex(0.4,0.8, "L. width NHitsUsed>0: %.4f +- %.4f" % (LandauWidth0, LandauWidthErr0))
+latex.DrawLatex(0.4,0.75, "L. width NHitsUsed>1: %.4f +- %.4f" % (LandauWidth1, LandauWidthErr1))
+latex.DrawLatex(0.4,0.7, "L. width NHitsUsed>2: %.4f +- %.4f" % (LandauWidth2, LandauWidthErr2))
+latex.DrawLatex(0.4,0.65, "L. width NHitsUsed>3: %.4f +- %.4f" % (LandauWidth3, LandauWidthErr3))
+# p5FirstElectron = gaus2Landau.GetParameter(5)
+# p5FirstElectronErr = gaus2Landau.GetParError(5)
+# p1FirstElectron = gaus2Landau.GetParameter(1)
+
+
+cFirstElectronCustomProjectionY.SaveAs("MeanChecking/CustomBinningFirstElectron2DHistogram_ProjectionY.png")
+
+
+
+
+
+############################################################################
+
+# hGammaFirstElectron_bg1 = ROOT.TH1F(
+#     "hGammaFirstElectron1",
+#     "hGammaFirstElectron1",
+#     m_numDEdxBins,
+#     0,
+#     m_dedxCutoff
+# )
+
+
+# preselTreeGamma.Draw(
+#     "FirstElectronSVDdEdxList>>hGammaFirstElectron1",
+#     "(FirstElectronSVDdEdx>0)",
+#     "goff"
+# )
+
+
+
+
+# cFirstElectronCustom = ROOT.TCanvas("cFirstElectronCustom", "Custom Binning FirstElectron", 800, 600)
+# hGammaFirstElectron_bg1.Draw("COLZ")
+# # cFirstElectronCustom.SaveAs("FirstElectronNTrackHits.png")
+
+
+treeGammaMeans_sw.SetEstimate(treeGammaMeans_sw.GetEntries() + 1)
+
+
+treeGammaMeans_sw.Draw("filtered_FirstElectronMomentumArray/0.0005110", "", "goff")
+
+# Retrieve the array of values
+vXP = treeGammaMeans_sw.GetV1()
+
+# Number of bins
+m_numPBins = 100
+
+kdBinsP = ROOT.TKDTreeBinning(treeGammaMeans_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
+
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
+
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
+
+# Define the histogram with custom binning
+m_numDEdxBins = 200  
+m_dedxCutoff = 5e6   
+
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
+
+hGammaFirstElectron_bg0 = ROOT.TH2F(
+    "hGammaFirstElectron0",
+    "hGammaFirstElectron0",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+hGammaFirstElectron_bg1 = ROOT.TH2F(
+    "hGammaFirstElectron1",
+    "hGammaFirstElectron1",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+hGammaFirstElectron_bg2 = ROOT.TH2F(
+    "hGammaFirstElectron2",
+    "hGammaFirstElectron2",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+hGammaFirstElectron_bg3 = ROOT.TH2F(
+    "hGammaFirstElectron3",
+    "hGammaFirstElectron3",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+treeGammaMeans_sw.Draw(
+    "filtered_FirstElectronSVDdEdxArray:filtered_FirstElectronMomentumArray/0.0005110>>hGammaFirstElectron0",
+    "(filtered_FirstElectronSVDdEdxArray>0)&(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray>0)",
+    "goff"
+)
+
+treeGammaMeans_sw.Draw(
+    "filtered_FirstElectronSVDdEdxArray:filtered_FirstElectronMomentumArray/0.0005110>>hGammaFirstElectron1",
+    "(filtered_FirstElectronSVDdEdxArray>0)&(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray>1)",
+    "goff"
+)
+
+treeGammaMeans_sw.Draw(
+    "filtered_FirstElectronSVDdEdxArray:filtered_FirstElectronMomentumArray/0.0005110>>hGammaFirstElectron2",
+    "(filtered_FirstElectronSVDdEdxArray>0)&(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray>2)",
+    "goff"
+)
+
+treeGammaMeans_sw.Draw(
+    "filtered_FirstElectronSVDdEdxArray:filtered_FirstElectronMomentumArray/0.0005110>>hGammaFirstElectron3",
+    "(filtered_FirstElectronSVDdEdxArray>0)&(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray>3)",
+    "goff"
+)
+
+
+
+cFirstElectronCustom = ROOT.TCanvas("cFirstElectronCustom", "Custom Binning FirstElectron", 800, 600)
+hGammaFirstElectron_bg0.Draw("COLZ")
+hGammaFirstElectron_bg1.Draw("COLZ SAME")
+hGammaFirstElectron_bg2.Draw("COLZ SAME")
+hGammaFirstElectron_bg3.Draw("COLZ SAME")
+cFirstElectronCustom.SaveAs("FirstElectronNTrackHits.png")
+
+
+
+
+cFirstElectronCustomProjectionY = ROOT.TCanvas("cFirstElectronCustomProjectionY", "Custom Binning FirstElectron 2D ProjectionY", 800, 600)
+
+
+
+cFirstElectronCustomProjectionY.SetRightMargin(0.15)
+cFirstElectronCustomProjectionY.SetLeftMargin(0.12)
+# cFirstElectronCustomProjectionY.SetLogy(True)
+# cFirstElectronCustomProjectionY.SetLogx(True)
+
+
+CustomProjectionY_FirstElectron0 = hGammaFirstElectron_bg0.ProjectionY("CustomProjectionY_FirstElectron0", bins_start, bins_fin)
+CustomProjectionY_FirstElectron1 = hGammaFirstElectron_bg1.ProjectionY("CustomProjectionY_FirstElectron1", bins_start, bins_fin)
+CustomProjectionY_FirstElectron2 = hGammaFirstElectron_bg2.ProjectionY("CustomProjectionY_FirstElectron2", bins_start, bins_fin)
+CustomProjectionY_FirstElectron3 = hGammaFirstElectron_bg3.ProjectionY("CustomProjectionY_FirstElectron3", bins_start, bins_fin)
+CustomProjectionY_FirstElectron0.SetLineColor(ROOT.kRed)
+CustomProjectionY_FirstElectron0.SetLineWidth(2)
+CustomProjectionY_FirstElectron0.SetTitle("First Electron ProjectionY")
+CustomProjectionY_FirstElectron0.GetYaxis().SetTitle("Mean Energy Loss")
+CustomProjectionY_FirstElectron0.GetXaxis().SetTitle("P/M (GeV/C)")
+CustomProjectionY_FirstElectron0.Draw("E1 SAME")
+CustomProjectionY_FirstElectron1.Draw("E1 SAME")
+CustomProjectionY_FirstElectron2.Draw("E1 SAME")
+CustomProjectionY_FirstElectron3.Draw("E1 SAME")
+
+CustomProjectionY_FirstElectron0.SetStats(False)
+
+
+gaus2Landau = ROOT.TF1(
+    "gaus2Landau",
+    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5]) + [6]*TMath::Landau(x, [1], [1]*[5])",
+    1.e5, 1.5e6
+)
+
+gaus2Landau.SetLineColor(ROOT.kBlack)
+# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_sigma, landau_width, Landau_Amplitude
+gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1, 1e5)
+gaus2Landau.SetNpx(1000)
+
+gaus2Landau.FixParameter(4,2.1)
+gaus2Landau.FixParameter(2,2.7)
+gaus2Landau.SetParLimits(5,0,1)
+gaus2Landau.SetParLimits(2,1,5)
+gaus2Landau.SetParLimits(4,1,5)
+
+CustomProjectionY_FirstElectron0.Fit("gaus2Landau", "R SAME")
+LandauWidth0 = gaus2Landau.GetParameter(5)
+LandauWidthErr0 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron1.Fit("gaus2Landau", "R SAME")
+LandauWidth1 = gaus2Landau.GetParameter(5)
+LandauWidthErr1 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron2.Fit("gaus2Landau", "R SAME")
+LandauWidth2 = gaus2Landau.GetParameter(5)
+LandauWidthErr2 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron3.Fit("gaus2Landau", "R SAME")
+LandauWidth3 = gaus2Landau.GetParameter(5)
+LandauWidthErr3 = gaus2Landau.GetParError(5)
+
+latex.DrawLatex(0.4,0.8, "L. width NHitsUsed>0: %.4f +- %.4f" % (LandauWidth0, LandauWidthErr0))
+latex.DrawLatex(0.4,0.75, "L. width NHitsUsed>1: %.4f +- %.4f" % (LandauWidth1, LandauWidthErr1))
+latex.DrawLatex(0.4,0.7, "L. width NHitsUsed>2: %.4f +- %.4f" % (LandauWidth2, LandauWidthErr2))
+latex.DrawLatex(0.4,0.65, "L. width NHitsUsed>3: %.4f +- %.4f" % (LandauWidth3, LandauWidthErr3))
+# p5FirstElectron = gaus2Landau.GetParameter(5)
+# p5FirstElectronErr = gaus2Landau.GetParError(5)
+# p1FirstElectron = gaus2Landau.GetParameter(1)
+
+
+cFirstElectronCustomProjectionY.SaveAs("MeanChecking/Filtered_FirstElectronProjectionY.png")
+
+
+
+########################################################################################################################
+
+
+treeGammaMeans_sw.SetEstimate(treeGammaMeans_sw.GetEntries() + 1)
+
+
+treeGammaMeans_sw.Draw("filtered_FirstElectronMomentumArray/0.0005110", "", "goff")
+
+# Retrieve the array of values
+vXP = treeGammaMeans_sw.GetV1()
+
+# Number of bins
+m_numPBins = 100
+
+kdBinsP = ROOT.TKDTreeBinning(treeGammaMeans_sw.GetEntries(), 1, vXP, m_numPBins)
+binsMinEdgesP_orig = kdBinsP.SortOneDimBinEdges()
+
+binsMinEdgesP = [binsMinEdgesP_orig[i] for i in range(m_numPBins + 2)]
+
+binsMinEdgesP[0] = 0.1
+binsMinEdgesP[m_numPBins + 1] = 50.
+
+# Define the histogram with custom binning
+m_numDEdxBins = 200  
+m_dedxCutoff = 5e6   
+
+# Convert to C array for ROOT
+binsMinEdgesP_arr = array('d', binsMinEdgesP)
+
+hGammaFirstElectron_bg0 = ROOT.TH2F(
+    "hGammaFirstElectron0",
+    "hGammaFirstElectron0",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+hGammaFirstElectron_bg1 = ROOT.TH2F(
+    "hGammaFirstElectron1",
+    "hGammaFirstElectron1",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+hGammaFirstElectron_bg2 = ROOT.TH2F(
+    "hGammaFirstElectron2",
+    "hGammaFirstElectron2",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+hGammaFirstElectron_bg3 = ROOT.TH2F(
+    "hGammaFirstElectron3",
+    "hGammaFirstElectron3",
+    m_numPBins,
+    binsMinEdgesP_arr,
+    m_numDEdxBins,
+    0,
+    m_dedxCutoff
+)
+
+treeGammaMeans_sw.Draw(
+    "original_even_mean:filtered_FirstElectronMomentumArray/0.0005110>>hGammaFirstElectron0",
+    "(original_even_mean>0)&(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray>0)",
+    "goff"
+)
+
+treeGammaMeans_sw.Draw(
+    "original_even_mean:filtered_FirstElectronMomentumArray/0.0005110>>hGammaFirstElectron1",
+    "(original_even_mean>0)&(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray>1)",
+    "goff"
+)
+
+treeGammaMeans_sw.Draw(
+    "original_even_mean:filtered_FirstElectronMomentumArray/0.0005110>>hGammaFirstElectron2",
+    "(original_even_mean>0)&(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray>2)",
+    "goff"
+)
+
+treeGammaMeans_sw.Draw(
+    "original_even_mean:filtered_FirstElectronMomentumArray/0.0005110>>hGammaFirstElectron3",
+    "(original_even_mean>0)&(filtered_FirstElectronSVDdEdxTrackNHitsUsedArray>3)",
+    "goff"
+)
+
+
+
+cFirstElectronCustom = ROOT.TCanvas("cFirstElectronCustom", "Custom Binning FirstElectron", 800, 600)
+hGammaFirstElectron_bg0.Draw("COLZ")
+hGammaFirstElectron_bg1.Draw("COLZ SAME")
+hGammaFirstElectron_bg2.Draw("COLZ SAME")
+hGammaFirstElectron_bg3.Draw("COLZ SAME")
+cFirstElectronCustom.SaveAs("FirstElectronNTrackHits.png")
+
+
+
+
+cFirstElectronCustomProjectionY = ROOT.TCanvas("cFirstElectronCustomProjectionY", "Custom Binning FirstElectron 2D ProjectionY", 800, 600)
+
+
+
+cFirstElectronCustomProjectionY.SetRightMargin(0.15)
+cFirstElectronCustomProjectionY.SetLeftMargin(0.12)
+# cFirstElectronCustomProjectionY.SetLogy(True)
+# cFirstElectronCustomProjectionY.SetLogx(True)
+
+
+CustomProjectionY_FirstElectron0 = hGammaFirstElectron_bg0.ProjectionY("CustomProjectionY_FirstElectron0", bins_start, bins_fin)
+CustomProjectionY_FirstElectron1 = hGammaFirstElectron_bg1.ProjectionY("CustomProjectionY_FirstElectron1", bins_start, bins_fin)
+CustomProjectionY_FirstElectron2 = hGammaFirstElectron_bg2.ProjectionY("CustomProjectionY_FirstElectron2", bins_start, bins_fin)
+CustomProjectionY_FirstElectron3 = hGammaFirstElectron_bg3.ProjectionY("CustomProjectionY_FirstElectron3", bins_start, bins_fin)
+CustomProjectionY_FirstElectron0.SetLineColor(ROOT.kRed)
+CustomProjectionY_FirstElectron0.SetLineWidth(2)
+CustomProjectionY_FirstElectron0.SetTitle("First Electron even ListEnergy Indices ProjectionY")
+CustomProjectionY_FirstElectron0.GetYaxis().SetTitle("Mean Energy Loss")
+CustomProjectionY_FirstElectron0.GetXaxis().SetTitle("P/M (GeV/C)")
+CustomProjectionY_FirstElectron0.Draw("E1 SAME")
+CustomProjectionY_FirstElectron1.Draw("E1 SAME")
+CustomProjectionY_FirstElectron2.Draw("E1 SAME")
+CustomProjectionY_FirstElectron3.Draw("E1 SAME")
+
+CustomProjectionY_FirstElectron0.SetStats(False)
+
+
+gaus2Landau = ROOT.TF1(
+    "gaus2Landau",
+    "[0]*TMath::Gaus(x, [1], [1]*[2]*[5]) + [3]*TMath::Gaus(x, [1], [1]*[4]*[5]) + [6]*TMath::Landau(x, [1], [1]*[5])",
+    1.e5, 1.5e6
+)
+
+gaus2Landau.SetLineColor(ROOT.kBlack)
+# Parameters: gaus1_amp, gaus1_mean, gaus1_sigma, gaus2_amp, gaus2_sigma, landau_width, Landau_Amplitude
+gaus2Landau.SetParameters(20000, 650e3, 1, 4000, 1, 0.1, 1e5)
+gaus2Landau.SetNpx(1000)
+
+gaus2Landau.FixParameter(4,2.1)
+gaus2Landau.FixParameter(2,2.7)
+gaus2Landau.SetParLimits(5,0,1)
+gaus2Landau.SetParLimits(2,1,5)
+gaus2Landau.SetParLimits(4,1,5)
+
+CustomProjectionY_FirstElectron0.Fit("gaus2Landau", "R SAME")
+LandauWidth0 = gaus2Landau.GetParameter(5)
+LandauWidthErr0 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron1.Fit("gaus2Landau", "R SAME")
+LandauWidth1 = gaus2Landau.GetParameter(5)
+LandauWidthErr1 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron2.Fit("gaus2Landau", "R SAME")
+LandauWidth2 = gaus2Landau.GetParameter(5)
+LandauWidthErr2 = gaus2Landau.GetParError(5)
+CustomProjectionY_FirstElectron3.Fit("gaus2Landau", "R SAME")
+LandauWidth3 = gaus2Landau.GetParameter(5)
+LandauWidthErr3 = gaus2Landau.GetParError(5)
+
+latex.DrawLatex(0.4,0.8, "L. width NHitsUsed>0: %.4f +- %.4f" % (LandauWidth0, LandauWidthErr0))
+latex.DrawLatex(0.4,0.75, "L. width NHitsUsed>1: %.4f +- %.4f" % (LandauWidth1, LandauWidthErr1))
+latex.DrawLatex(0.4,0.7, "L. width NHitsUsed>2: %.4f +- %.4f" % (LandauWidth2, LandauWidthErr2))
+latex.DrawLatex(0.4,0.65, "L. width NHitsUsed>3: %.4f +- %.4f" % (LandauWidth3, LandauWidthErr3))
+# p5FirstElectron = gaus2Landau.GetParameter(5)
+# p5FirstElectronErr = gaus2Landau.GetParError(5)
+# p1FirstElectron = gaus2Landau.GetParameter(1)
+
+
+cFirstElectronCustomProjectionY.SaveAs("MeanChecking/Filtered_evenEnergyListIndicesProjectionY.png")
+
+
+

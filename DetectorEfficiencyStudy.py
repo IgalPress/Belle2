@@ -29,10 +29,14 @@ print('Files Loaded')
 FirstElectronSVDdEdxList = np.empty(20, "float64")
 FirstElectronSVDdEdx = 0
 FirstElectronMomentum = array('d', [0.])
+FirstElectronSVDdEdxTrackNHitsUsed = array('d', [0.])
+
 
 preselTreeGamma.Branch("FirstElectronSVDdEdxList",FirstElectronSVDdEdxList,"FirstElectronSVDdEdxList[20]/D")
 preselTreeGamma.Branch("FirstElectronSVDdEdx",FirstElectronSVDdEdx,"FirstElectronSVDdEdx/D")
 preselTreeGamma.Branch("FirstElectronMomentum",FirstElectronMomentum,"FirstElectronMomentum/D")
+preselTreeGamma.Branch("FirstElectronMomentum",FirstElectronMomentum,"FirstElectronMomentum/D")
+preselTreeGamma.Branch("FirstElectronSVDdEdxTrackNHitsUsed",FirstElectronSVDdEdxTrackNHitsUsed,"FirstElectronSVDdEdxTrackNHitsUsed/D")
 
 
 
@@ -53,6 +57,10 @@ with uproot.open("Gamma_8Apr.root") as file:
 with uproot.open("Gamma_8Apr.root") as file:
     tree = file["Gamma"]
     FirstElectronMomentumArray = tree["FirstElectronMomentum"].array(library="np")
+
+with uproot.open("Gamma_8Apr.root") as file:
+    tree = file["Gamma"]
+    FirstElectronSVDdEdxTrackNHitsUsedArray = tree["FirstElectronSVDdEdxTrackNHitsUsed"].array(library="np")
 
 def CMS_mean(arr):
     arr = np.array(arr)
@@ -77,7 +85,7 @@ def make_ALICE_weights(arr):
     n = len(arr)
     weights = np.ones(n)
     if n >= 2:
-        weights[-2:] = 0.5
+        weights[-2:] = 0.2
     return weights
 
 def ALICE_mean(arr):
@@ -128,9 +136,24 @@ inf_indices = [
 mask = np.ones(len(FirstElectronSVDdEdxArray), dtype=bool)
 mask[inf_indices] = False
 
-filtered_FirstElectronSVDdEdxArray = FirstElectronSVDdEdxArray[mask]
 filtered_FirstElectronSVDdEdxListArray = FirstElectronSVDdEdxListArray[mask]
+filtered_FirstElectronSVDdEdxArray = FirstElectronSVDdEdxArray[mask]
 filtered_FirstElectronMomentumArray = FirstElectronMomentumArray[mask]
+filtered_FirstElectronSVDdEdxTrackNHitsUsedArray = FirstElectronSVDdEdxTrackNHitsUsedArray[mask]
+
+odd_values = [row[1::2] for row in filtered_FirstElectronSVDdEdxListArray]
+odd_sorted = [np.sort(row) for row in odd_values]
+odd_without_max2 = [row[:] for row in odd_sorted]
+filtered_oddOriginalMean = [np.mean(row) for row in odd_without_max2]
+filtered_oddOriginalMean = np.nan_to_num(filtered_oddOriginalMean)
+print('done sorting odds')
+
+even_values = [row[::2] for row in filtered_FirstElectronSVDdEdxListArray]
+even_sorted = [np.sort(row) for row in even_values]
+even_without_max2 = [row[:-2] for row in even_sorted]
+filtered_EvenOriginalMean = [np.sum(row*make_ALICE_weights(row))/np.sum(make_ALICE_weights(row)) for row in even_without_max2]
+filtered_EvenOriginalMean = np.nan_to_num(filtered_EvenOriginalMean)
+print('done sorting evens')
 
 
 
@@ -142,48 +165,46 @@ harmonic_means = np.array([
     for row in filtered_FirstElectronSVDdEdxListArray
 ], dtype='float64')
 
-output_file = ROOT.TFile("Gamma_8Apr_withCMSmean.root", "UPDATE")
+output_file = ROOT.TFile("Gamma_8Apr_withCMSmean.root", "RECREATE")
 output_file.Delete("Gamma_Means;*")
 
 new_tree = ROOT.TTree("Gamma_Means", "Gamma tree with multiple mean branches")
 
+original_even_mean_value = array('d', [0.])
+original_odd_mean_value = array('d', [0.])
 cms_mean_value = array('d', [0.])
 alice_mean_value = array('d', [0.])
 atlas_mean_value = array('d', [0.])
 harmonic_mean_value = array('d', [0.])
 filtered_FirstElectronSVDdEdxArray_value = array('d', [0.])
 filtered_FirstElectronMomentumArray_value = array('d', [0.])
+filtered_FirstElectronSVDdEdxTrackNHitsUsedArray_value = array('d', [0.])
 
+new_tree.Branch("original_even_mean", original_even_mean_value, "original_even_mean/D")
+new_tree.Branch("original_odd_mean", original_odd_mean_value, "original_odd_mean/D")
 new_tree.Branch("CMS_mean", cms_mean_value, "CMS_mean/D")
 new_tree.Branch("ALICE_mean", alice_mean_value, "ALICE_mean/D")
 new_tree.Branch("ATLAS_mean", atlas_mean_value, "ATLAS_mean/D")
 new_tree.Branch("Harmonic_mean", harmonic_mean_value, "Harmonic_mean/D")
-<<<<<<< HEAD
+
 new_tree.Branch("filtered_FirstElectronSVDdEdxArray", filtered_FirstElectronSVDdEdxArray_value, "filtered_FirstElectronSVDdEdxArray/D")
 new_tree.Branch("filtered_FirstElectronMomentumArray", filtered_FirstElectronMomentumArray_value, "filtered_FirstElectronMomentumArray/D")
-=======
-new_tree.Branch("filtered_FirstElectronSVDdEdxArray", filtered_FirstElectronSVDdEdxArray, "filtered_FirstElectronSVDdEdxArray/D")
-new_tree.Branch("filtered_FirstElectronMomentumArray", filtered_FirstElectronMomentumArray, "filtered_FirstElectronMomentumArray/D")
->>>>>>> 7dad7b44913abffebc27967ec5a6219a5169e6df
+new_tree.Branch("filtered_FirstElectronSVDdEdxTrackNHitsUsedArray", filtered_FirstElectronSVDdEdxTrackNHitsUsedArray_value, "filtered_FirstElectronSVDdEdxTrackNHitsUsedArray/D")
 
-for cms, alice, atlas, harm, filtered_energy, filtered_momentum in zip(cms_means, alice_means, atlas_means, harmonic_means, filtered_FirstElectronSVDdEdxArray,filtered_FirstElectronMomentumArray):
+print('branches filled')
+
+for original_even, original_odd, cms, alice, atlas, harm, filtered_energy, filtered_momentum, filtered_trackNHits in zip(filtered_EvenOriginalMean, filtered_oddOriginalMean, cms_means, alice_means, atlas_means, harmonic_means, filtered_FirstElectronSVDdEdxArray,filtered_FirstElectronMomentumArray,filtered_FirstElectronSVDdEdxTrackNHitsUsedArray):
+    original_odd_mean_value[0] = original_odd
+    original_even_mean_value[0] = original_even
     cms_mean_value[0] = cms
     alice_mean_value[0] = alice
     atlas_mean_value[0] = atlas
     harmonic_mean_value[0] = harm
     filtered_FirstElectronSVDdEdxArray_value[0] = filtered_energy
     filtered_FirstElectronMomentumArray_value[0] = filtered_momentum
+    filtered_FirstElectronSVDdEdxTrackNHitsUsedArray_value[0] = filtered_trackNHits
 
     new_tree.Fill()
-<<<<<<< HEAD
-
-new_tree.Write()
-output_file.Close()
-
-
-
-=======
->>>>>>> 7dad7b44913abffebc27967ec5a6219a5169e6df
 
 new_tree.Write()
 output_file.Close()
@@ -218,10 +239,10 @@ output_file.Close()
 #     even_without_max2 = even_sorted[:-2]
 #     # Harmonic_mean_even = len(even_values)/(np.sum(1.0/even_values))
 #     # Difference = Harmonic_mean_even - np.mean(even_without_max2)
-#     Difference = CMS_mean(even_without_max2) - np.mean(even_without_max2)
+#     Difference = filtered_EvenOriginalMean[i] - np.mean(even_without_max2)
 #     # Difference = np.mean(even_without_max2) - FirstElectronSVDdEdxArray[i]
 #     # print(f'Difference between values: {Difference}')
-#     if Difference > 100000 and ~np.isnan(Difference):
+#     if Difference > 0 and ~np.isnan(Difference):
 #         # print(f'Event {i}')
 #         # print(f'Even indices without max 2: {even_without_max2}')
 #         # print(f'Harmonic mean: {Harmonic_mean_even}')
@@ -229,7 +250,7 @@ output_file.Close()
 #         # print(f'Difference {np.abs(Difference)}')
 #         # print(f'Expected Value: {FirstElectronSVDdEdxArray[i]}')
 #         n = n+1
-#     elif Difference < -100000 and ~np.isnan(Difference):
+#     elif Difference < 0 and ~np.isnan(Difference):
 #         n_neg = n_neg+1
 #     if (i%50000 == 0):
 #         print(f'Event number {i}')
